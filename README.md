@@ -15,13 +15,9 @@ conda activate fds-async
 ```shell
 pip install -r requirements.txt
 copy .env.example .env
-copy logging.yaml.example logging.yaml
 ```
 
-Then 
-1. fill out the environment variables in `.env`
-2. Manually create your log folder (default `/log` under your cloned `fds-be` project folder).
-
+Then fill out the environment variables in `.env`
 ### 2. Start the server
 
 ```shell
