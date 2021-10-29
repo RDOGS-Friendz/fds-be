@@ -34,6 +34,6 @@ class Profile:
     is_birthday_private: bool
     tagline: str
     department_id: int
-    socila_media_link: str
+    social_media_link: str
     birthday: datetime
     about: str
