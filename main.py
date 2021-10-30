@@ -49,3 +49,7 @@ async def default_page():
 
 from api import include_routers
 include_routers(app)
+
+
+import middleware.auth
+app.middleware('http')(middleware.auth.middleware)

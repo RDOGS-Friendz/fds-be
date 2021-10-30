@@ -1,19 +1,19 @@
 import pydantic
 import json
 from typing import Sequence, Optional
-from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import HTMLResponse
-from databases import Database
+from fastapi import APIRouter, HTTPException, Depends, Request
 from dataclasses import dataclass
 from pydantic import BaseModel
 
 from base import do, enum, security
 import database as db
-from config import jwt_config
+from middleware.dependencies import get_token_header
 
-router = APIRouter(tags=['Account'])
+router = APIRouter(
+    tags=['Account'],
+    dependencies=[Depends(get_token_header)],
+)
 
 
 class LoginInput(BaseModel):
@@ -33,7 +33,7 @@ async def login(data: LoginInput) -> Sequence[do.Account]:
     if not security.verify_password(to_test=data.password, hashed=account.pass_hash):
         raise HTTPException(status_code=400, detail="Login Failed")
 
-    login_token = security.encode_jwt(account_id=account.id, expire=jwt_config.login_expire)
+    login_token = security.encode_jwt(account_id=account.id)
 
     return LoginOutput(auth_token=login_token, account_id=account.id)
 
@@ -50,8 +50,8 @@ class AddAccountInput(BaseModel):
 @router.post("/account")
 async def add_account(data: AddAccountInput) -> do.AddOutput:
     account_id = await db.account.add(username=data.username, pass_hash=security.hash_password(password=data.password),
-                                real_name=data.real_name, email=data.email, gender=data.gender, is_superuser=data.is_superuser)
-    return AddOutput(id=account_id)
+                                      real_name=data.real_name, email=data.email, gender=data.gender, is_superuser=data.is_superuser)
+    return do.AddOutput(id=account_id)
 
 
 @dataclass
@@ -62,7 +62,7 @@ class BrowseAccountOutput:
 
 
 @router.get("/account")
-async def browse_account_with_search(search: pydantic.Json) -> Sequence[do.Account]:
+async def browse_account_with_search(search: pydantic.Json, request: Request) -> Sequence[do.Account]:
     # search_dict = json.dumps(search)
     result = await db.account.browse_by_search(to_search=search)
     return [BrowseAccountOutput(account_id=account.id,
@@ -72,7 +72,7 @@ async def browse_account_with_search(search: pydantic.Json) -> Sequence[do.Accou
 
 
 @router.get("/account/batch")
-async def batch_get_account_by_ids(account_ids: pydantic.Json) -> Sequence[do.Account]:
+async def batch_get_account_by_ids(account_ids: pydantic.Json, request: Request) -> Sequence[do.Account]:
     account_ids = pydantic.parse_obj_as(list[int], account_ids)
     if not account_ids:
         return []
@@ -89,6 +89,6 @@ class EditAccountPrivacyInput(BaseModel):
 
 
 @router.patch("/account/{account_id}/privacy")
-async def edit_account_privacy(account_id: int, data: EditAccountPrivacyInput) -> int:
+async def edit_account_privacy(account_id: int, data: EditAccountPrivacyInput, request: Request) -> int:
     await db.account.edit_privacy(account_id=account_id, is_real_name_private=(not data.display_real_name))
     await db.profile.edit_privacy(account_id=account_id, is_birthday_private=(not data.display_birthday))

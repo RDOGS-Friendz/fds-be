@@ -26,7 +26,6 @@ class AppConfig:
 class JWTConfig:
     jwt_secret = env_values.get('JWT_SECRET', 'aaa')
     jwt_encode_algorithm = env_values.get('JWT_ENCODE_ALGORITHM', 'HS256')
-    login_expire = timedelta(days=float(env_values.get('LOGIN_EXPIRE_DAYS', '7')))
 
 
 db_config = DBConfig()

@@ -1,17 +1,19 @@
 from typing import Sequence, Optional
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import HTMLResponse
-from databases import Database
+from fastapi import APIRouter, HTTPException, Depends, Request
 from dataclasses import dataclass
 from pydantic import BaseModel
 
-from base import do, enum
 import database as db
-from config import jwt_config
+from base import do
+from middleware.dependencies import get_token_header
 
-router = APIRouter(tags=['Profile'])
+
+router = APIRouter(
+    tags=['Profile'],
+    dependencies=[Depends(get_token_header)],
+)
 
 
 class AddProfileInput(BaseModel):
@@ -23,7 +25,13 @@ class AddProfileInput(BaseModel):
 
 
 @router.post("/account/{account_id}/profile")
-async def add_profile_under_account(account_id: int, data: AddProfileInput) -> do.AddOutput:
+async def add_profile_under_account(account_id: int, data: AddProfileInput, request: Request) -> do.AddOutput:
+    """
+    ### Auth
+    - Self
+    """
+    if request.state.id is not account_id:
+        raise HTTPException(status_code=400, detail="No Permission")
     profile_id = await db.profile.add_under_account(account_id=account_id, tagline=data.tagline, department_id=data.department_id,
                                                     social_media_link=data.social_media_link, birthday=data.birthday, about=data.about)
     return do.AddOutput(id=profile_id)
@@ -31,5 +39,5 @@ async def add_profile_under_account(account_id: int, data: AddProfileInput) -> d
 
 # WIP: category related
 @router.get("/account/{account_id}/profile")
-async def read_profile_under_account(account_id: int) -> do.Profile:
+async def read_profile_under_account(account_id: int, request: Request) -> do.Profile:
     return await db.profile.read_under_account(account_id=account_id)
