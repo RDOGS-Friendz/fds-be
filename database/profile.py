@@ -1,9 +1,11 @@
+import json
 from typing import Sequence, Optional
 
 from fastapi import HTTPException
 
 from main import database
 from base import do, enum
+from middleware.response import json_serial
 
 
 async def add_under_account(account_id: int,
@@ -37,7 +39,7 @@ async def read_under_account(account_id: int) -> do.Profile:
                       tagline=result[0]["tagline"],
                       department_id=result[0]["department_id"],
                       social_media_link=result[0]["social_media_link"],
-                      birthday=result[0]["birthday"],
+                      birthday=json_serial(result[0]["birthday"]),
                       about=result[0]["about"])
 
 
