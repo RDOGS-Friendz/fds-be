@@ -37,3 +37,9 @@ class Profile:
     social_media_link: str
     birthday: datetime
     about: str
+
+@dataclass
+class Friendship:
+    requester_id: int
+    addressee_id: int
+    status: enum.FriendshipType

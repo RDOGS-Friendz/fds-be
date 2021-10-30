@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from databases import Database
 from datetime import datetime
 from config import db_config, app_config
@@ -16,6 +17,19 @@ app = FastAPI(
 database = Database(db_config.host, port=db_config.port, user=db_config.username, password=db_config.password,
                     database=db_config.db_name)
 
+origins = [
+    "https://rdogs.dodofk.xyz/",
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def database_connect():
