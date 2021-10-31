@@ -16,48 +16,36 @@ async def get_account_friends(account_id: int) -> Sequence[Optional[str]]:
     results = [ item for result in results for item in result]
     return list(filter((account_id).__ne__, results))
 
-# async def add_under_account(account_id: int,
-#                             tagline: str,
-#                             department_id: Optional[int] = None,
-#                             social_media_link: Optional[str] = None,
-#                             birthday: Optional[str] = None,
-#                             about: Optional[str] = None) -> int:
-#     query = (
-#         fr"INSERT INTO profile(account_id, tagline, department_id, social_media_link, birthday, about) "
-#         fr"     VALUES ('{account_id}','{tagline}','{department_id}', '{social_media_link}', '{birthday}', '{about}')"
-#         fr"   RETURNING id "
-#     )
-#     result = await database.fetch_one(query=query)
-#     return int(result["id"])
+async def get_friend_requests(account_id: int) -> Sequence[Optional[str]]:
+    query = (
+        fr"SELECT requester_id"
+        fr" FROM friendship"
+        fr" WHERE addressee_id={account_id} AND status='PENDING'"
+    )
+    results = await database.fetch_all(query=query)
+    results = [ item for result in results for item in result]
+    return list(filter((account_id).__ne__, results))
 
+async def send_friend_request(account_id: int, friend_id: int) -> str:
+    # check whether they have been friends or not
+    query = (
+        fr"SELECT requester_id, addressee_id"
+        fr"  FROM friendship"
+        fr" WHERE (requester_id={account_id} AND addressee_id={friend_id} AND status='ACCEPTED')"
+        fr"  OR (requester_id={friend_id} AND addressee_id={account_id} AND status='ACCEPTED')"    
+    )
+    results = await database.fetch_all(query=query)
+    if len(results) > 0:
+        return 'You are friends'
+    # if not insert or update
+    query = (
+        fr"INSERT INTO friendship (requester_id, addressee_id, status)"
+        fr" VALUES ({account_id}, {friend_id}, 'PENDING')"
+        fr" ON CONFLICT (requester_id, addressee_id) DO"
+        fr" UPDATE SET status = 'PENDING';"
+    )
+    await database.fetch_one(query=query)
 
-# async def read_under_account(account_id: int) -> do.Profile:
-#     query = (
-#         fr"SELECT id, account_id, is_birthday_private, tagline, department_id, social_media_link, birthday, about"
-#         fr"  FROM profile"
-#         fr" WHERE account_id = '{account_id}'"
-#     )
-#     result = await database.fetch_all(query=query)
-#     if not result:
-#         raise HTTPException(status_code=404)
+    return 'Successful'
 
-#     return do.Profile(id=result[0]["id"],
-#                       account_id=result[0]["account_id"],
-#                       is_birthday_private=result[0]["is_birthday_private"],
-#                       tagline=result[0]["tagline"],
-#                       department_id=result[0]["department_id"],
-#                       social_media_link=result[0]["social_media_link"],
-#                       birthday=result[0]["birthday"],
-#                       about=result[0]["about"])
-
-
-# async def edit_privacy(account_id: int, is_birthday_private: bool = None):
-#     if is_birthday_private is None:
-#         return
-#     query = (
-#         fr"UPDATE profile"
-#         fr"   SET is_birthday_private = {is_birthday_private}"
-#         fr" WHERE account_id = {account_id}"
-#     )
-#     await database.fetch_one(query=query)
 
