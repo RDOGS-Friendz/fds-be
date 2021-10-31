@@ -27,7 +27,8 @@ async def read_account_friends(account_id: int, request: Request):
     """
     if request.state.id is not account_id:
         raise HTTPException(status_code=400, detail="No Permission")
-    return await db.friend.get_account_friends(account_id=account_id)
+    list = await db.friend.get_account_friends(account_id=account_id)
+    return do.FriendOutput(friend_account_id=list)
 
 @router.get("/account/{account_id}/friend-request")
 async def read_account_friend_requests(account_id: int, request: Request):
@@ -37,7 +38,8 @@ async def read_account_friend_requests(account_id: int, request: Request):
     """
     if request.state.id is not account_id:
         raise HTTPException(status_code=400, detail="No Permission") 
-    return await db.friend.get_friend_requests(account_id=account_id)
+    list = await db.friend.get_friend_requests(account_id=account_id)
+    return do.FriendRequestOutput(friend_request_id=list)
 
 @router.post("/account/{account_id}/friend-request")
 async def send_friend_requests(account_id: int, data: AddFriendInput, request: Request) -> do.AddOutput:

@@ -13,6 +13,13 @@ Database Output: return every column of a table in database
 class AddOutput:
     id: int
 
+@dataclass
+class FriendOutput:
+    friend_account_id: list
+
+@dataclass
+class FriendRequestOutput:
+    friend_request_id: list
 
 @dataclass
 class Account:
