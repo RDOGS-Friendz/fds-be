@@ -18,7 +18,7 @@ database = Database(db_config.host, port=db_config.port, user=db_config.username
                     database=db_config.db_name)
 
 origins = [
-    "https://rdogs.dodofk.xyz/",
+    "https://rdogs.dodofk.xyz",
     "http://localhost",
     "http://localhost:3000",
 ]
