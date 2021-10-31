@@ -1,5 +1,7 @@
 import fastapi
+from fastapi import HTTPException
 from base import security
+import database as db
 
 
 async def middleware(request: fastapi.Request, call_next):

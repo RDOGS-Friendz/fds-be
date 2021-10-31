@@ -40,4 +40,12 @@ async def add_profile_under_account(account_id: int, data: AddProfileInput, requ
 # WIP: category related
 @router.get("/account/{account_id}/profile")
 async def read_profile_under_account(account_id: int, request: Request) -> do.Profile:
+    """
+    ### Auth
+    - ALL
+    """
+    try:
+        await db.account.read(account_id=request.state.id)
+    except:
+        raise HTTPException(status_code=400, detail="No Permission")
     return await db.profile.read_under_account(account_id=account_id)
