@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Sequence, Optional
+from api import include_routers
 
 from base import enum
 
@@ -63,10 +64,25 @@ class CategoryOutput:
 class Location:
     id: int
     name: str
-    type: str
+    type: enum.LocationType
     lat: Optional[float]
     lng: Optional[float]
 
 @dataclass
 class LocationsOutput:
     locations: Sequence[Location]
+
+@dataclass
+class Event:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: datetime
+    start_time: datetime
+    end_time: datetime
+    max_participant_count: int
+    creator_account_id: int
+    description: str

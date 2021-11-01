@@ -35,7 +35,6 @@ async def read_location(location_id: int):
         return do.Location(id=result['id'], name=result['name'], type=result['type'], lat=result['lat'], lng=result['lng'])
     raise HTTPException(status_code=404, detail="Not Found")
 
-# TODO: ADD search option
 @router.get("/location")
 async def browse_all_location(search: str = ''):
     if search != '':

@@ -4,4 +4,5 @@ from . import (
     friend,
     category,
     location,
+    event,
 )
