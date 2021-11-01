@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Sequence
 
 from base import enum
 
@@ -54,3 +55,6 @@ class Friendship:
 class Category:
     id: int
     name: str
+@dataclass
+class CategoryOutput:
+    categories: Sequence[Category]
