@@ -35,6 +35,8 @@ async def read_location(location_id: int):
 # TODO: ADD search option
 @router.get("/location")
 async def browse_all_location(search: Optional[str]):
+    if search:
+        HTTPException(status_code=404, detail="Not Found")
     result = await db.location.read_all_locations()
     results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
     return do.LocationsOutput(locations=results)
