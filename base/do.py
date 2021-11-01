@@ -50,3 +50,7 @@ class Friendship:
     requester_id: int
     addressee_id: int
     status: enum.FriendshipType
+@dataclass
+class Category:
+    id: int
+    name: str
