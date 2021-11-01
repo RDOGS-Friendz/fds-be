@@ -7,9 +7,11 @@ def include_routers(app: fastapi.FastAPI):
         profile,
         friend,
         category,
+        location,
     )
 
     app.include_router(account.router)
     app.include_router(profile.router)
     app.include_router(friend.router)
     app.include_router(category.router)
+    app.include_router(location.router)

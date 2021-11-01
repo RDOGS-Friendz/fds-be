@@ -3,4 +3,5 @@ from . import (
     profile,
     friend,
     category,
+    location,
 )

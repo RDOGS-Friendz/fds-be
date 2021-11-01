@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence, Optional
 
 from base import enum
 
@@ -58,3 +58,15 @@ class Category:
 @dataclass
 class CategoryOutput:
     categories: Sequence[Category]
+
+@dataclass
+class Location:
+    id: int
+    name: str
+    type: str
+    lat: Optional[float]
+    lng: Optional[float]
+
+@dataclass
+class LocationsOutput:
+    locations: Sequence[Location]
