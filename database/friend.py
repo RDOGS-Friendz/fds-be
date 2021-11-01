@@ -51,4 +51,19 @@ async def send_friend_request(account_id: int, friend_id: int) -> str:
 
     return 'Successful'
 
+async def accept_friend_request(account_id: int, friend_id: int):
+    query = (
+        fr"UPDATE friendship"
+        fr"  SET status='ACCEPTED'"
+        fr" WHERE requester_id={friend_id} AND addressee_id={account_id}"
+    )
+    return await database.fetch_one(query=query)
+
+async def decline_friend_request(account_id: int, friend_id: int):
+    query = (
+        fr"UPDATE friendship"
+        fr"  SET status='DELETED'"
+        fr" WHERE requester_id={friend_id} AND addressee_id={account_id}"
+    )
+    return await database.fetch_one(query=query)
 
