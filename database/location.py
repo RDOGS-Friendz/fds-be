@@ -20,6 +20,14 @@ async def read_all_locations():
     )
     return await database.fetch_all(query=query)
 
+async def search_locations(search: str):
+    query = (
+        fr"SELECT id, name, type, lat, lng"
+        fr" FROM location"
+        fr" WHERE name LIKE '%{search}%'"
+    )
+    return await database.fetch_all(query=query)
+
 async def add_location(name: str, type: enum.LocationType):
     query = (
         fr"INSERT INTO location(name, type) "
