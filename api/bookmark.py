@@ -17,8 +17,12 @@ router = APIRouter(
 )
 
 
-@router.post("/event/{event_id}/bookmark")
-async def add_bookmark(event_id: int, request: Request) -> do.AddOutput:
+@dataclass
+class AddBookmarkOutput:
+    id: int
+
+@router.post("/event/{event_id}/bookmark", response_model=AddBookmarkOutput)
+async def add_bookmark(event_id: int, request: Request):
     """
     ### Auth
     - Self

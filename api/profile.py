@@ -29,7 +29,7 @@ class ReadProfileOutput:
     about: str
 
 
-@router.get("/account/{account_id}/profile")
+@router.get("/account/{account_id}/profile", response_model=ReadProfileOutput)
 async def read_account_profile(account_id: int, request: Request) -> ReadProfileOutput:
     """
     ### Auth

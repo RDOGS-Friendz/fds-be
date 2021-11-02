@@ -25,19 +25,35 @@ class AddLocationInput(BaseModel):
 class SearchLocationInput(BaseModel):
     search: Optional[str] = None
 
-@router.post("/location")
+
+@dataclass
+class AddLocationOutput:
+    id: int
+
+
+@router.post("/location", response_model=AddLocationOutput)
 async def add_location(data: AddLocationInput, request: Request) -> do.AddOutput:
     location_id = await db.location.add_location(name=data.name, type=data.type, lat=data.lat, lng=data.lng)
     return do.AddOutput(id=location_id)
 
-@router.get("/location/{location_id}")
+@router.get("/location/{location_id}", response_model=do.Location)
 async def read_location(location_id: int) -> do.Location:
     result = await db.location.read_location(location_id=location_id)
     if result:
         return do.Location(id=result['id'], name=result['name'], type=result['type'], lat=result['lat'], lng=result['lng'])
     raise HTTPException(status_code=404, detail="Not Found")
 
-@router.get("/location")
+
+@dataclass
+class BrowseLocationOutput:
+    id: int
+    name: str
+    type: enum.LocationType
+    lat: Optional[float]
+    lng: Optional[float]
+
+
+@router.get("/location", response_model=BrowseLocationOutput)
 async def browse_all_location(search: str = ''):
     if search != '':
         result = await db.location.search_locations(search=search)
