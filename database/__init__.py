@@ -6,4 +6,5 @@ from . import (
     location,
     event,
     reaction,
+    bookmark,
 )

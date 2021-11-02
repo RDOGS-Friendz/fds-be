@@ -17,6 +17,7 @@ async def add_event_reaction(event_id: int, account_id: int, content: str):
     query = (
         fr"INSERT INTO event_account_reaction(event_id, content, author_id) "
         fr"  VALUES ({event_id}, '{content}', {account_id})"
+        fr" ON CONFLICT DO NOTHING"
         fr" RETURNING id"
     )
     result = await database.fetch_one(query=query)

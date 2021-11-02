@@ -88,6 +88,10 @@ class Event:
     description: str
 
 @dataclass
+class EventsIdOutput:
+    event_ids: Sequence[int]
+
+@dataclass
 class Reaction:
     id: int
     event_id: int
