@@ -1,3 +1,4 @@
+import pydantic
 from typing import Sequence, Optional
 from datetime import datetime
 
@@ -19,6 +20,7 @@ router = APIRouter(
 @dataclass
 class ReadProfileOutput:
     account_id: int
+    real_name: str
     tagline: str
     department: str
     social_media_acct: str
@@ -27,7 +29,6 @@ class ReadProfileOutput:
     about: str
 
 
-# WIP: category related
 @router.get("/account/{account_id}/profile")
 async def read_account_profile(account_id: int, request: Request) -> ReadProfileOutput:
     """
@@ -36,7 +37,7 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     - Self (private info)
     """
     try:
-        await db.account.read(account_id=request.state.id)
+        account = await db.account.read(account_id=request.state.id)
     except:
         raise HTTPException(status_code=400, detail="No Permission")
 
@@ -46,9 +47,38 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     account_categories = await db.account_category.browse_account_categories(account_id=account_id)
     department = await db.department.read(department_id=profile.department_id)
     return ReadProfileOutput(account_id=profile.account_id,
+                             real_name=account.real_name if is_self else None,
                              tagline=profile.tagline,
                              department=department.department_name,
                              social_media_acct=profile.social_media_link,
                              birthday=profile.birthday if is_self else None,
                              preferred_category_id=[result.category_id for result in account_categories],
                              about=profile.about)
+
+
+class EditProfileInput(BaseModel):
+    tagline: str = None
+    department: str = None
+    social_media_acct: str = None
+    birthday: datetime = None
+    preferred_category_id: Sequence[int] = None
+    about: str = None
+
+
+@router.patch("/account/{account_id}/profile")
+async def edit_account_profile(account_id: int, data: EditProfileInput, request: Request) -> None:
+    """
+    ### Auth
+    - Self
+    """
+    if request.state.id is not account_id:
+        raise HTTPException(status_code=400, detail="No Permission")
+
+    preferred_category_ids = pydantic.parse_obj_as(list[int], data.preferred_category_id)
+    await db.profile.edit_under_account(account_id=account_id,
+                                        tagline=data.tagline,
+                                        department_name=data.department,
+                                        social_media_link=data.social_media_acct,
+                                        birthday=data.birthday,
+                                        preferred_category_ids=preferred_category_ids,
+                                        about=data.about)

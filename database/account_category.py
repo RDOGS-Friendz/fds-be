@@ -16,3 +16,5 @@ async def browse_account_categories(account_id: int) -> do.AccountCategory:
     return [do.AccountCategory(account_id=result[i]["account_id"],
                                category_id=result[i]["category_id"])
             for i in range(len(result))]
+
+
