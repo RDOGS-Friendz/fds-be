@@ -182,7 +182,7 @@ CREATE TABLE public.friendship (
 CREATE TABLE public.profile (
 	id serial4 NOT NULL,
 	account_id int4 NULL,
-	is_birthday_private bool NOT NULL DEFAULT false,
+	is_birthday_private bool DEFAULT false,
 	tagline varchar NULL,
 	department_id int4 NULL,
 	social_media_link varchar NULL,

@@ -15,13 +15,16 @@ Database Output: return every column of a table in database
 class AddOutput:
     id: int
 
+
 @dataclass
 class FriendOutput:
     friend_account_id: list
 
+
 @dataclass
 class FriendRequestOutput:
     friend_request_id: list
+
 
 @dataclass
 class Account:
@@ -47,15 +50,32 @@ class Profile:
     birthday: datetime
     about: str
 
+
 @dataclass
 class Friendship:
     requester_id: int
     addressee_id: int
     status: enum.FriendshipType
+
+
+@dataclass
+class AccountCategory:
+    account_id: int
+    category_id: int
+
+
+@dataclass
+class Department:
+    id: int
+    school: str
+    department_name: str
+
+
 @dataclass
 class Category:
     id: int
     name: str
+
 @dataclass
 class CategoryOutput:
     categories: Sequence[Category]

@@ -16,36 +16,39 @@ router = APIRouter(
 )
 
 
-class AddProfileInput(BaseModel):
+@dataclass
+class ReadProfileOutput:
+    account_id: int
     tagline: str
-    department_id: Optional[int]
-    social_media_link: Optional[str]
-    birthday: Optional[datetime]
-    about: Optional[str]
-
-
-@router.post("/account/{account_id}/profile")
-async def add_profile_under_account(account_id: int, data: AddProfileInput, request: Request) -> do.AddOutput:
-    """
-    ### Auth
-    - Self
-    """
-    if request.state.id is not account_id:
-        raise HTTPException(status_code=400, detail="No Permission")
-    profile_id = await db.profile.add_under_account(account_id=account_id, tagline=data.tagline, department_id=data.department_id,
-                                                    social_media_link=data.social_media_link, birthday=data.birthday, about=data.about)
-    return do.AddOutput(id=profile_id)
+    department: str
+    social_media_acct: str
+    birthday: datetime
+    preferred_category_id: Sequence[int]
+    about: str
 
 
 # WIP: category related
 @router.get("/account/{account_id}/profile")
-async def read_profile_under_account(account_id: int, request: Request) -> do.Profile:
+async def read_account_profile(account_id: int, request: Request) -> ReadProfileOutput:
     """
     ### Auth
     - ALL
+    - Self (private info)
     """
     try:
         await db.account.read(account_id=request.state.id)
     except:
         raise HTTPException(status_code=400, detail="No Permission")
-    return await db.profile.read_under_account(account_id=account_id)
+
+    is_self = request.state.id is account_id
+
+    profile = await db.profile.read_under_account(account_id=account_id)
+    account_categories = await db.account_category.browse_account_categories(account_id=account_id)
+    department = await db.department.read(department_id=profile.department_id)
+    return ReadProfileOutput(account_id=profile.account_id,
+                             tagline=profile.tagline,
+                             department=department.department_name,
+                             social_media_acct=profile.social_media_link,
+                             birthday=profile.birthday if is_self else None,
+                             preferred_category_id=[result.category_id for result in account_categories],
+                             about=profile.about)
