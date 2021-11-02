@@ -86,3 +86,14 @@ class Event:
     max_participant_count: int
     creator_account_id: int
     description: str
+
+@dataclass
+class Reaction:
+    id: int
+    event_id: int
+    content: str
+    author_id: int
+
+@dataclass
+class ReactionsOutput:
+    reactions: Sequence[Reaction]

@@ -24,3 +24,11 @@ async def read_event(event_id: int):
         fr" WHERE id={event_id}"
     )
     return await database.fetch_one(query=query)
+
+async def join_event(event_id: int, account_id: int):
+    query = (
+        fr"INSERT INTO event_participant (account_id, event_id) "
+        fr"  VALUES ({account_id}, {event_id})"
+        fr" ON CONFLICT DO NOTHING"
+    )
+    await database.fetch_one(query=query)

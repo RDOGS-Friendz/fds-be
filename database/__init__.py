@@ -5,4 +5,5 @@ from . import (
     category,
     location,
     event,
+    reaction,
 )

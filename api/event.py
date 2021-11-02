@@ -32,6 +32,7 @@ class AddEventInput(BaseModel):
 async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
     event_id = await db.event.add_event(title=data.title, is_private=data.is_private, location_id=data.location_id,
      category_id=data.category_id, intensity=data.intensity, start_time=data.start_time, end_time=data.end_time, max_participant_count=data.num_people_wanted, creator_account_id=request.state.id, description=data.description)
+    await db.event.join_event(event_id=event_id, account_id=request.state.id)
     return do.AddOutput(id=event_id)
 
 # TODO: deal with private event
