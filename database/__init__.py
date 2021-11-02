@@ -8,5 +8,6 @@ from . import (
     event,
     reaction,
     bookmark,
+    event_bookmark,
     department,
 )

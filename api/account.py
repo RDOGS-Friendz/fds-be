@@ -90,7 +90,7 @@ async def batch_get_account(account_ids: pydantic.Json, request: Request) -> Seq
     account_ids = pydantic.parse_obj_as(list[int], account_ids)
     if not account_ids:
         return []
-    result = await db.account.batch_read_by_ids(account_ids=account_ids)
+    result = await db.account.batch_read(account_ids=account_ids)
     return [BrowseAccountOutput(account_id=account.id,
                                 username=account.username,
                                 real_name=account.real_name)

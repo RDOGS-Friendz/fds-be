@@ -13,7 +13,7 @@ async def read_bookmarks(account_id: int, limit: int, offset: int):
         fr"  ORDER BY id DESC"
         fr"  LIMIT {limit} OFFSET {offset}"
     )
-    return await database.fetch_one(query=query)
+    return await database.fetch_all(query=query)
 
 async def add_bookmark(event_id: int, account_id: int):
     query = (

@@ -74,7 +74,7 @@ async def read_by_username(username: str) -> do.Account:
                       is_deleted=result[0]["is_deleted"])
 
 
-async def batch_read_by_ids(account_ids: Sequence[int]) -> Sequence[do.Account]:
+async def batch_read(account_ids: Sequence[int]) -> Sequence[do.Account]:
     cond_sql = ', '.join(str(account_id) for account_id in account_ids)
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"

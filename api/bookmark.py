@@ -17,18 +17,6 @@ router = APIRouter(
 )
 
 
-# TODO
-# @router.get("/event/bookmarked")
-# async def read_bookmark(limit: str, offset: str, request: Request):
-#     """
-#     ### Auth
-#     - Self
-#     """
-#     result = await db.bookmark.read_bookmarks(account_id=20, limit=limit, offset=offset)
-#     if result == None:
-#         raise HTTPException(status_code=400, detail="System Exception")
-#     return result
-
 @router.post("/event/{event_id}/bookmark")
 async def add_bookmark(event_id: int, request: Request) -> do.AddOutput:
     """

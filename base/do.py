@@ -108,6 +108,12 @@ class Event:
     description: str
 
 @dataclass
+class EventBookmark:
+    id: int
+    account_id: int
+    event_id: int
+
+@dataclass
 class EventsIdOutput:
     event_ids: Sequence[int]
 

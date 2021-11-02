@@ -22,7 +22,7 @@ def encode_jwt(account_id: int) -> str:
 def decode_jwt(encoded: str) -> int:
     try:
         decoded = _jwt_decoder(encoded)
-    except jwt.DecodeError:
+    except jwt.DecodeError:  # FIXME: catch failed
         raise HTTPException(status_code=400, detail="Login Failed")
 
     return decoded['account-id']
