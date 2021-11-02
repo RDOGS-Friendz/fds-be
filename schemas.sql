@@ -90,7 +90,7 @@ CREATE TABLE public.email_verification (
 CREATE TABLE public."event" (
 	id serial4 NOT NULL,
 	title varchar NOT NULL,
-	is_private bool NULL DEFAULT false,
+	is_private bool NOT NULL DEFAULT false,
 	location_id int4 NULL,
 	category_id int4 NULL,
 	intensity intensity_type NULL DEFAULT 'INTERMEDIATE'::intensity_type,

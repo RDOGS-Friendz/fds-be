@@ -56,10 +56,22 @@ async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int
 
 # TODO: deal with private event
 @router.get("/event/{event_id}")
-async def read_event(event_id: int):
-    result = await db.event.read_event(event_id=event_id)
-    if result:
-        return do.Event(id=result['id'], title=result['title'], is_private=result['is_private'], location_id=result['location_id'],
-             category_id=result['category_id'], intensity=result['intensity'], create_time=json_serial(result['create_time']), start_time=json_serial(result['start_time']),
-             end_time=json_serial(result['end_time']), max_participant_count=result['max_participant_count'], creator_account_id=result['creator_account_id'], description=result['description'])
-    raise HTTPException(status_code=404, detail="Not Found")
+async def read_event(event_id: int, request: Request) -> do.Event:
+    """
+    ### Auth
+    - Self
+    """
+    try:
+        event = await db.event.read_event(event_id=event_id)
+    except:
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    is_private = event.is_private
+    is_self = request.state.id is event.creator_account_id
+
+    if is_private and not is_self:
+        raise HTTPException(status_code=400, detail="No Permission")
+
+    return event
+
+
