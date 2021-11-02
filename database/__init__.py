@@ -3,7 +3,9 @@ from . import (
     profile,
     friend,
     category,
+    account_category,
     location,
     event,
     reaction,
+    department,
 )
