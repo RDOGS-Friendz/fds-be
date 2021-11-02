@@ -19,17 +19,19 @@ router = APIRouter(
 class AddLocationInput(BaseModel):
     name: str
     type: enum.LocationType
+    lat: Optional[float]
+    lng: Optional[float]
 
 class SearchLocationInput(BaseModel):
     search: Optional[str] = None
 
 @router.post("/location")
 async def add_location(data: AddLocationInput, request: Request) -> do.AddOutput:
-    location_id = await db.location.add_location(name=data.name, type=data.type)
+    location_id = await db.location.add_location(name=data.name, type=data.type, lat=data.lat, lng=data.lng)
     return do.AddOutput(id=location_id)
 
 @router.get("/location/{location_id}")
-async def read_location(location_id: int):
+async def read_location(location_id: int) -> do.Location:
     result = await db.location.read_location(location_id=location_id)
     if result:
         return do.Location(id=result['id'], name=result['name'], type=result['type'], lat=result['lat'], lng=result['lng'])

@@ -28,10 +28,10 @@ async def search_locations(search: str):
     )
     return await database.fetch_all(query=query)
 
-async def add_location(name: str, type: enum.LocationType):
+async def add_location(name: str, type: enum.LocationType, lat: float, lng: float) -> int:
     query = (
-        fr"INSERT INTO location(name, type) "
-        fr"  VALUES ('{name}', '{type}')"
+        fr"INSERT INTO location(name, type, lat, lng) "
+        fr"  VALUES ('{name}', '{type}', '{lat}', '{lng}')"
         fr" RETURNING id"
     )
     result = await database.fetch_one(query=query)
