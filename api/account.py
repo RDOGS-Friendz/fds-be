@@ -76,8 +76,8 @@ class BrowseAccountOutput:
 
 
 @router.get("/account")
-async def browse_account(search: pydantic.Json, request: Request) -> Sequence[do.Account]:
-    # search_dict = json.dumps(search)
+async def browse_account(request: Request, search: str = '') -> Sequence[do.Account]:
+
     result = await db.account.browse_by_search(to_search=search)
     return [BrowseAccountOutput(account_id=account.id,
                                 username=account.username,

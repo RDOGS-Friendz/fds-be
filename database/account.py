@@ -6,10 +6,8 @@ from main import database
 from base import do, enum
 
 
-async def browse_by_search(to_search: Dict[str, str]) -> Sequence[do.Account]:
-    if not to_search:
-        return
-    search_sql = ' AND '.join(fr"{field_name} LIKE '%{value}%'" for field_name, value in to_search.items())
+async def browse_by_search(to_search: str) -> Sequence[do.Account]:
+    search_sql = fr"username LIKE '%{to_search}%' OR real_name LIKE '%{to_search}%'"
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
         fr"       is_real_name_private, is_superuser, is_deleted"
