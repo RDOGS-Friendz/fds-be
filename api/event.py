@@ -77,11 +77,13 @@ class ReadEventOutput:
 
 
 # TODO: deal with private event
-@router.get("/event/{event_id}", response_model=ReadEventOutput)
+@router.get("/event/{event_id}", response_model=ReadEventOutput, response_class=JSONResponse)
 async def read_event(event_id: int, request: Request) -> do.Event:
     """
     ### Auth
     - Self
+    - Event Participant (Joined Event)
+    - Friend of Event Creator
     """
     try:
         event = await db.event.read_event(event_id=event_id)
@@ -91,10 +93,17 @@ async def read_event(event_id: int, request: Request) -> do.Event:
     is_private = event.is_private
     is_self = request.state.id is event.creator_account_id
 
-    if is_private and not is_self:
+    participant_ids = await db.event_participant.browse_participants(event_id=event_id)
+    is_joined = request.state.id in participant_ids
+
+    friend_ids = await db.friend.get_account_friends(account_id=event.creator_account_id)
+    is_friend = request.state.id in friend_ids
+
+    if is_private and (not is_self and not is_joined and not is_friend):
         raise HTTPException(status_code=400, detail="No Permission")
 
     return event
+
 
 @router.post("/event/{event_id}/join")
 async def join_event(event_id: int, request: Request):
