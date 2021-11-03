@@ -167,3 +167,14 @@ async def join_event(event_id: int, request: Request):
             raise HTTPException(status_code=400, detail="System Exception")
     else:
         raise HTTPException(status_code=400, detail="Max Limitation")
+
+@router.delete("/event/{event_id}/join")
+async def cancel_join_event(event_id: int, request: Request) -> None:
+    """
+    ### Auth
+    - Creator
+    """
+    try:
+        await db.event.cancel_join_event(event_id=event_id, account_id=request.state.id)
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")

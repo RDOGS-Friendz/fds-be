@@ -102,6 +102,14 @@ async def join_event(event_id: int, account_id: int):
     )
     await database.fetch_one(query=query)
 
+async def cancel_join_event(event_id: int, account_id: int):
+    query = (
+        fr"DELETE FROM event_participant"
+        fr"  WHERE account_id={account_id} AND event_id={event_id}"
+    )
+    await database.fetch_one(query=query)
+
+
 async def get_event_participants_cnt(event_id: int):
     query = (
         fr"SELECT COUNT(*)"
