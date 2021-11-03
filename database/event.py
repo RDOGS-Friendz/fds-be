@@ -102,6 +102,14 @@ async def join_event(event_id: int, account_id: int):
     )
     await database.fetch_one(query=query)
 
+async def cancel_join_event(event_id: int, account_id: int):
+    query = (
+        fr"DELETE FROM event_participant"
+        fr"  WHERE account_id={account_id} AND event_id={event_id}"
+    )
+    await database.fetch_one(query=query)
+
+
 async def get_event_participants_cnt(event_id: int):
     query = (
         fr"SELECT COUNT(*)"
@@ -119,3 +127,42 @@ async def get_event_max_participants_cnt(event_id: int):
     )
     result = await database.fetch_one(query=query)
     return int(result['max_participant_count'])
+
+async def edit_event(event_id: int, account_id: int, title: str = None, is_private: bool= None, location_id: int= None, 
+                     category_id: int= None, intensity: enum.IntensityType= None, start_time: datetime= None, 
+                     end_time: datetime= None,  max_participant_count: int= None, description: str= None) -> None:
+    to_updates = {}
+
+    if title is not None:
+        to_updates['title'] = title
+    if is_private is not None:
+        to_updates['is_private'] = is_private
+    if location_id is not None:
+        to_updates['location_id'] = location_id
+    if category_id is not None:
+        to_updates['category_id'] = category_id
+    if intensity is not None:
+        to_updates['intensity'] = intensity
+    if start_time is not None:
+        to_updates['start_time'] = start_time
+    if end_time is not None:
+        to_updates['end_time'] = end_time
+    if max_participant_count is not None:
+        to_updates['max_participant_count'] = max_participant_count
+    if description is not None:
+        to_updates['description'] = description
+
+    if not to_updates:
+        return
+    
+    set_sql = ', '.join(fr"{field_name} = '{to_updates[field_name]}'" for field_name in to_updates)
+    
+    query = (fr'UPDATE event'
+             fr'   SET {set_sql}'
+             fr' WHERE creator_account_id = {account_id} AND id={event_id}')
+    await database.fetch_one(query=query)
+
+async def delete_event(event_id: int, account_id: int) -> None:
+    query = (fr'DELETE FROM event'
+             fr' WHERE id = {event_id} AND creator_account_id={account_id}')
+    await database.fetch_one(query=query)

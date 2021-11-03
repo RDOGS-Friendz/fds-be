@@ -53,12 +53,12 @@ class BrowseLocationOutput:
     lng: Optional[float]
 
 
-@router.get("/location", response_model=BrowseLocationOutput)
+@router.get("/location", response_model=Sequence[BrowseLocationOutput])
 async def browse_all_location(search: str = ''):
     if search != '':
         result = await db.location.search_locations(search=search)
         results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
-        return do.LocationsOutput(locations=results)
+        return results
     result = await db.location.read_all_locations()
     results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
-    return do.LocationsOutput(locations=results)
+    return results

@@ -92,7 +92,7 @@ class BatchAccountOutput:
     real_name: str
 
 
-@router.get("/account/batch", response_model=BatchAccountOutput)
+@router.get("/account/batch", response_model=Sequence[BatchAccountOutput])
 async def batch_get_account(account_ids: pydantic.Json, request: Request) -> Sequence[do.Account]:
     account_ids = pydantic.parse_obj_as(list[int], account_ids)
     if not account_ids:
