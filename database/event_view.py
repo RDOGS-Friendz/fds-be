@@ -21,7 +21,7 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
                                    if field_name not in ['start_date', 'end_date'])
 
     query = (
-        fr"SELECT * FROM "
+        fr"SELECT * FROM (SELECT * FROM "
 		fr" (SELECT *, "
 		fr"		CASE WHEN (end_time - start_time) < INTERVAL '30 minutes' then 'SHORT'"
 		fr"		     WHEN (end_time - start_time) < INTERVAL '90 minutes' then 'MEDIUM'"
@@ -40,16 +40,18 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
 		fr"      start_time::TIMESTAMP::DATE AS start_date"
         fr"   FROM event) as t "
         fr"   WHERE start_time >= NOW()"
-        fr"{  f'AND {filter_sql}' if filter_sql else ''}"
-        fr" AND ((is_private AND ( "  # private
+        fr" AND (is_private AND ( "  # private
         fr"     creator_account_id IN ( "  # is_friend
         fr"     SELECT * FROM (" 
         fr"           SELECT DISTINCT UNNEST(ARRAY[requester_id, addressee_id]) AS friend_id FROM friendship"
         fr"            WHERE (status='ACCEPTED') AND (requester_id = {viewer_id} OR addressee_id = {viewer_id})) AS t)"
         fr"     ) " 
-        fr" ) OR NOT is_private)"
+        fr" ) "
+        fr" OR NOT is_private"
         fr" OR ( id IN"  # is joined
         fr"       (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"
+        fr" ) AS __TABLE__ "
+        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
@@ -85,7 +87,7 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
                                   if field_name not in ['start_date', 'end_date'])
 
     query = (
-        fr"SELECT * FROM "
+        fr"SELECT * FROM (SELECT * FROM "
 		fr" (SELECT *, "
 		fr"		CASE WHEN (end_time - start_time) < INTERVAL '30 minutes' then 'SHORT'"
 		fr"		     WHEN (end_time - start_time) < INTERVAL '90 minutes' then 'MEDIUM'"
@@ -104,7 +106,6 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
 		fr"      start_time::TIMESTAMP::DATE AS start_date" 
         fr"   FROM event) as t "
         fr"   WHERE start_time >= NOW()"
-        fr"{  f'AND {filter_sql}' if filter_sql else ''}"
         fr" AND category_id IN ( "  # interested categories
 	    fr"     SELECT category_id FROM account_category"
 	    fr"      WHERE account_id = {viewer_id}) "
@@ -117,6 +118,8 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         fr" ) OR NOT is_private)"
         fr" AND ( id NOT IN"  # is not joined
         fr"       (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"
+        fr" ) AS __TABLE__"
+        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
@@ -143,14 +146,14 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
 
     if 'time_interval' not in filter:
         filter['time_interval'] = const.DEFAULT_TIME_INTERVAL
-    filter_sql = fr"start_time - NOW() <= interval '{filter['time_interval']}'"
+    filter_sql = fr" start_time - NOW() <= interval '{filter['time_interval']}'"
 
     if 'start_date' in filter and 'end_date' in filter:
         filter_sql += ' AND '
         filter_sql += ' AND '.join(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
 
     to_add_sql = ' AND '.join(fr"{field_name} = '{value}'" for field_name, value in filter.items()
-                            if field_name not in ['start_date', 'end_date', 'time_interval'])
+                              if field_name not in ['start_date', 'end_date', 'time_interval'])
     if to_add_sql:
         filter_sql += ' AND '
         filter_sql += to_add_sql
@@ -158,7 +161,7 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
 
 
     query = (
-        fr"SELECT * FROM "
+        fr"SELECT * FROM (SELECT * FROM "
 		fr" (SELECT *, "
 		fr"		CASE WHEN (end_time - start_time) < INTERVAL '30 minutes' then 'SHORT'"
 		fr"		     WHEN (end_time - start_time) < INTERVAL '90 minutes' then 'MEDIUM'"
@@ -177,16 +180,18 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
 		fr"      start_time::TIMESTAMP::DATE AS start_date" 
         fr"   FROM event) as t "
         fr" WHERE start_time >= NOW()"
-        fr"{  f'AND {filter_sql}' if filter_sql else ''}"
-        fr" AND ((is_private AND ( "  # private
+        fr" AND (is_private AND ( "  # private
         fr"     creator_account_id IN ( "  # is_friend
         fr"     SELECT * FROM (" 
         fr"           SELECT DISTINCT UNNEST(ARRAY[requester_id, addressee_id]) AS friend_id FROM friendship"
         fr"            WHERE (status='ACCEPTED') AND (requester_id = {viewer_id} OR addressee_id = {viewer_id})) AS t)"
         fr"     ) " 
-        fr" ) OR NOT is_private)"
+        fr" ) "
+        fr" OR NOT is_private"
         fr" OR ( id IN"  # is joined
         fr"      (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"
+        fr" ) AS __TABLE__"
+        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
@@ -222,7 +227,7 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
                                    if field_name not in ['start_date', 'end_date'])
 
     query = (
-        fr"SELECT * FROM "
+        fr"SELECT * FROM (SELECT * FROM "
 		fr" (SELECT *, "
 		fr"		CASE WHEN (end_time - start_time) < INTERVAL '30 minutes' then 'SHORT'"
 		fr"		     WHEN (end_time - start_time) < INTERVAL '90 minutes' then 'MEDIUM'"
@@ -241,8 +246,7 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
 		fr"      start_time::TIMESTAMP::DATE AS start_date"
         fr"   FROM event) as t "
         fr"   WHERE start_time >= NOW()"
-        fr"{  f'AND {filter_sql}' if filter_sql else ''}"
-        fr" AND ((is_private AND ( "  # private
+        fr"     AND ((is_private AND ( "  # private
         fr"     creator_account_id IN ( "  # is_friend
         fr"     SELECT * FROM (" 
         fr"           SELECT DISTINCT UNNEST(ARRAY[requester_id, addressee_id]) AS friend_id FROM friendship"
@@ -259,7 +263,8 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
 		fr"     WHERE (status='ACCEPTED')"
 		fr"      AND (requester_id = {viewer_id} or addressee_id = {viewer_id})"
 		fr"	    )"
-        fr")"
+        fr") ) AS __TABLE__ "
+        fr"{  f'WHERE {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
