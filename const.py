@@ -1,0 +1,1 @@
+DEFAULT_TIME_INTERVAL = '1 week'
