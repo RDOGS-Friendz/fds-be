@@ -44,7 +44,7 @@ async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
 
 # TODO: exceptions
 # TODO: no permission for other users?
-@router.get("/event/bookmarked", tags=['Bookmark'], response_model=do.Event)
+@router.get("/event/bookmarked", tags=['Bookmark'], response_model=Sequence[do.Event])
 async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
     """
     ### Auth
@@ -68,9 +68,9 @@ class ReadEventOutput:
     location_id: int
     category_id: int
     intensity: enum.IntensityType
-    create_time: datetime
-    start_time: datetime
-    end_time: datetime
+    create_time: str
+    start_time: str
+    end_time: str
     max_participant_count: int
     creator_account_id: int
     description: str

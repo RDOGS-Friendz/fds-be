@@ -100,9 +100,9 @@ class Event:
     location_id: int
     category_id: int
     intensity: enum.IntensityType
-    create_time: datetime
-    start_time: datetime
-    end_time: datetime
+    create_time: str
+    start_time: str
+    end_time: str
     max_participant_count: int
     creator_account_id: int
     description: str
