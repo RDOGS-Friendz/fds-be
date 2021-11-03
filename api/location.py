@@ -53,7 +53,7 @@ class BrowseLocationOutput:
     lng: Optional[float]
 
 
-@router.get("/location", response_model=BrowseLocationOutput)
+@router.get("/location", response_model=Sequence[BrowseLocationOutput])
 async def browse_all_location(search: str = ''):
     if search != '':
         result = await db.location.search_locations(search=search)

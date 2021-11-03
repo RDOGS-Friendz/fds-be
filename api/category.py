@@ -22,7 +22,7 @@ async def read_category(category_id: int):
     raise HTTPException(status_code=404, detail="Not Found")
 
 
-@router.get("/category")
+@router.get("/category", response_model=Sequence[do.Category])
 async def browse_all_category():
     result = await db.category.read_all_categories()
     results = [do.Category(id=item['id'], name=item['name']) for item in result]
