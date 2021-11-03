@@ -172,7 +172,7 @@ async def join_event(event_id: int, request: Request):
 async def cancel_join_event(event_id: int, request: Request) -> None:
     """
     ### Auth
-    - Creator
+    -   Self
     """
     try:
         await db.event.cancel_join_event(event_id=event_id, account_id=request.state.id)
