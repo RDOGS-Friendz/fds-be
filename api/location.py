@@ -61,4 +61,4 @@ async def browse_all_location(search: str = ''):
         return do.LocationsOutput(locations=results)
     result = await db.location.read_all_locations()
     results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
-    return do.LocationsOutput(locations=results)
+    return results
