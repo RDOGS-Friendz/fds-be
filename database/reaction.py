@@ -23,11 +23,19 @@ async def add_event_reaction(event_id: int, account_id: int, content: str):
     result = await database.fetch_one(query=query)
     return int(result["id"])
 
-async def delete_reaction(reaction_id: int, account_id: int):
+async def delete_reaction(event_id: int, account_id: int):
     query = (
         fr"DELETE FROM event_account_reaction"
-        fr" WHERE id={reaction_id} AND author_id={account_id}"
+        fr" WHERE event_id={event_id} AND author_id={account_id}"
         fr" RETURNING id"
     )
     return await database.fetch_one(query=query)
 
+async def edit_reaction(event_id: int, account_id: int, content: str):
+    query = (
+        fr"UPDATE event_account_reaction"
+        fr"  SET content='{content}'"
+        fr" WHERE event_id={event_id} AND account_id={account_id}"
+        fr" RETURNING id"
+    )
+    await database.fetch_one(query=query)

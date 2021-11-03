@@ -28,13 +28,13 @@ async def add_bookmark(event_id: int, request: Request) -> do.AddOutput:
         raise HTTPException(status_code=400, detail="System Exception")
     return do.AddOutput(id=int(result['id']))
 
-@router.delete("/event/bookmark/{bookmark_id}")
-async def delete_bookmark(bookmark_id: int, request: Request):
+@router.delete("/event/{event_id}/bookmark/")
+async def delete_bookmark(event_id: int, request: Request):
     """
     ### Auth
     - Self
     """
-    result = await db.bookmark.delete_bookmark(bookmark_id=bookmark_id, account_id=request.state.id)
+    result = await db.bookmark.delete_bookmark(event_id=event_id, account_id=request.state.id)
     if result == None:
         raise HTTPException(status_code=400, detail="No Permission")
-    return do.AddOutput(id=bookmark_id)
+    return do.AddOutput(id=int(result['id']))

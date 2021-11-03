@@ -19,6 +19,9 @@ router = APIRouter(
 class AddReactionInput(BaseModel):
     content: str
 
+class EditReactionInput(BaseModel):
+    content: str
+
 @router.post("/event/{event_id}/reaction")
 async def add_reaction(event_id: int, data: AddReactionInput, request: Request) -> do.AddOutput:
     """
@@ -36,13 +39,24 @@ async def browse_event_reactions(event_id: int):
     results = [do.Reaction(id=item['id'], event_id=item['event_id'], content=item['content'], author_id=item['author_id']) for item in result]
     return do.ReactionsOutput(reactions=results)
 
-@router.delete("/event/reaction/{reaction_id}")
-async def delete_event_reaction(reaction_id: int, request: Request):
+@router.patch("/event/{event_id}/reaction")
+async def edit_event_reaction(event_id: int, data: EditReactionInput, request: Request) -> None:
     """
     ### Auth
     - Self
     """
-    result = await db.reaction.delete_reaction(reaction_id=reaction_id, account_id=request.state.id)
+    try:
+        await db.reaction.edit_reaction(event_id=event_id, account_id=request.state.id, content=data.content)
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")
+
+@router.delete("/event/{event_id}/reaction")
+async def delete_event_reaction(event_id: int, request: Request):
+    """
+    ### Auth
+    - Self
+    """
+    result = await db.reaction.delete_reaction(event_id=event_id, account_id=request.state.id)
     if result == None:
         raise HTTPException(status_code=400, detail="No Permission")
-    return do.AddOutput(id=reaction_id)
+    return do.AddOutput(id=int(result['id']))

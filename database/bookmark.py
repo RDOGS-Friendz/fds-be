@@ -25,10 +25,10 @@ async def add_bookmark(event_id: int, account_id: int):
     result = await database.fetch_one(query=query)
     return result
 
-async def delete_bookmark(bookmark_id: int, account_id: int):
+async def delete_bookmark(event_id: int, account_id: int):
     query = (
         fr"DELETE FROM event_bookmark"
-        fr" WHERE id={bookmark_id} AND account_id={account_id}"
+        fr" WHERE event_id={event_id} AND account_id={account_id}"
         fr" RETURNING id"
     )
     return await database.fetch_one(query=query)
