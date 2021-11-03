@@ -153,3 +153,8 @@ async def edit_event(event_id: int, account_id: int, title: str = None, is_priva
              fr'   SET {set_sql}'
              fr' WHERE creator_account_id = {account_id} AND id={event_id}')
     await database.fetch_one(query=query)
+
+async def delete_event(event_id: int, account_id: int) -> None:
+    query = (fr'DELETE FROM event'
+             fr' WHERE id = {event_id} AND creator_account_id={account_id}')
+    await database.fetch_one(query=query)

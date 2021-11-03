@@ -37,10 +37,13 @@ class AddEventOutput:
 
 @router.post("/event", response_model=AddEventOutput)
 async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
-    event_id = await db.event.add_event(title=data.title, is_private=data.is_private, location_id=data.location_id,
-     category_id=data.category_id, intensity=data.intensity, start_time=data.start_time, end_time=data.end_time, max_participant_count=data.num_people_wanted, creator_account_id=request.state.id, description=data.description)
-    await db.event.join_event(event_id=event_id, account_id=request.state.id)
-    return do.AddOutput(id=event_id)
+    try:
+        event_id = await db.event.add_event(title=data.title, is_private=data.is_private, location_id=data.location_id,
+        category_id=data.category_id, intensity=data.intensity, start_time=data.start_time, end_time=data.end_time, max_participant_count=data.num_people_wanted, creator_account_id=request.state.id, description=data.description)
+        await db.event.join_event(event_id=event_id, account_id=request.state.id)
+        return do.AddOutput(id=event_id)
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")
 
 class EditEventInput(BaseModel):
     title: str = None
@@ -60,7 +63,7 @@ async def edit_event(event_id: int, data: EditEventInput, request: Request) -> N
     - Creator
     """
     try: 
-        return await db.event.edit_event(event_id=event_id,
+        await db.event.edit_event(event_id=event_id,
                                   account_id=request.state.id,
                                   title=data.title,
                                   is_private=data.is_private,
@@ -74,7 +77,16 @@ async def edit_event(event_id: int, data: EditEventInput, request: Request) -> N
     except:
         raise HTTPException(status_code=400, detail="System Exception")
 
-    
+@router.delete("/event/{event_id}")
+async def delete_event(event_id: int, request: Request) -> None:
+    """
+    ### Auth
+    - Creator
+    """
+    try:
+        await db.event.delete_event(event_id=event_id, account_id=request.state.id)
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")
 
 # TODO: exceptions
 # TODO: no permission for other users?
