@@ -42,6 +42,24 @@ async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
     return do.AddOutput(id=event_id)
 
 
+# filter -> view -> limit, offset
+@router.get("/event")
+async def browse_event(request: Request, filter: str, view: enum.EventViewType,
+                       limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
+    """
+    ### Auth
+    - Self
+    """
+    # if request.state.id is not account_id:
+    #     raise HTTPException(status_code=400, detail="No Permission")
+
+    event_bookmarks = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id)
+    events = await db.event.batch_read(event_ids=[bookmark.event_id for bookmark in event_bookmarks],
+                                       limit=limit, offset=offset)
+
+    return events
+
+
 # TODO: exceptions
 # TODO: no permission for other users?
 @router.get("/event/bookmarked", tags=['Bookmark'], response_model=Sequence[do.Event])

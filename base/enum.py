@@ -27,3 +27,9 @@ class FriendshipType(str, Enum):
     pending = 'PENDING'
     accepted = 'ACCEPTED'
     deleted = 'DELETED'
+
+class EventViewType(str, Enum):
+    suggested = 'suggested'
+    upcoming = 'upcoming'
+    joined_by_friend = 'joined-by-friend'
+    all = 'all'
