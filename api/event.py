@@ -90,7 +90,7 @@ async def browse_event(request: Request, view: enum.EventViewType, search: str =
     elif view is enum.EventViewType.upcoming:
         results = await db.event_view.view_upcoming(viewer_id=request.state.id, filter=filter_, limit=limit, offset=offset)
     elif view is enum.EventViewType.joined_by_friend:
-        results = await db.event_view.view_joined_by_friend(:viewer_id=request.state.id, filter=filter_, limit=limit, offset=offset)
+        results = await db.event_view.view_joined_by_friend(viewer_id=request.state.id, filter=filter_, limit=limit, offset=offset)
     else:  # all
         results = await db.event_view.view_all(viewer_id=request.state.id, filter=filter_, limit=limit, offset=offset)
 
