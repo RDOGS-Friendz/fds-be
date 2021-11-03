@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from base import do, enum
 import database as db
+from database import event
 from middleware.dependencies import get_token_header
 from middleware.response import json_serial
 
@@ -41,6 +42,39 @@ async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
     await db.event.join_event(event_id=event_id, account_id=request.state.id)
     return do.AddOutput(id=event_id)
 
+class EditEventInput(BaseModel):
+    title: str = None
+    is_private: bool = None
+    location_id: int = None
+    category_id: int = None
+    intensity: enum.IntensityType = None
+    start_time: datetime = None
+    end_time: datetime = None
+    num_people_wanted: int = None
+    description: str = None
+
+@router.patch("/event/{event_id}")
+async def edit_event(event_id: int, data: EditEventInput, request: Request) -> None:
+    """
+    ### Auth
+    - Creator
+    """
+    try: 
+        return await db.event.edit_event(event_id=event_id,
+                                  account_id=request.state.id,
+                                  title=data.title,
+                                  is_private=data.is_private,
+                                  location_id=data.location_id,
+                                  category_id=data.category_id,
+                                  intensity=data.intensity,
+                                  start_time=data.start_time,
+                                  end_time=data.end_time,
+                                  max_participant_count=data.num_people_wanted,
+                                  description=data.description)
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")
+
+    
 
 # TODO: exceptions
 # TODO: no permission for other users?

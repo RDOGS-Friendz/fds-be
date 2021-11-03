@@ -64,7 +64,7 @@ async def edit_under_account(account_id: int, tagline: str = None, department_na
     if not to_updates:
         return
 
-    set_sql = ', '.join(fr"{field_name} = {field_name}" for field_name in to_updates)
+    set_sql = ', '.join(fr"{field_name} = '{to_updates[field_name]}'" for field_name in to_updates)
 
     query = (fr'UPDATE profile'
              fr'   SET {set_sql}'
