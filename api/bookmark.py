@@ -32,7 +32,7 @@ async def add_bookmark(event_id: int, request: Request):
         raise HTTPException(status_code=400, detail="System Exception")
     return do.AddOutput(id=int(result['id']))
 
-@router.delete("/event/{event_id}/bookmark/")
+@router.delete("/event/{event_id}/bookmark")
 async def delete_bookmark(event_id: int, request: Request):
     """
     ### Auth
