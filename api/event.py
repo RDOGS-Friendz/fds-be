@@ -77,7 +77,7 @@ class ReadEventOutput:
 
 
 # TODO: deal with private event
-@router.get("/event/{event_id}", response_model=ReadEventOutput, response_class=JSONResponse)
+@router.get("/event/{event_id}", response_model=ReadEventOutput)
 async def read_event(event_id: int, request: Request) -> do.Event:
     """
     ### Auth
