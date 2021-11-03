@@ -61,7 +61,7 @@ async def read_by_username(username: str) -> do.Account:
     )
     result = await database.fetch_all(query=query)
     if not result:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=400, detail="Login Failed")
 
     return do.Account(id=result[0]["id"],
                       username=result[0]["username"],
