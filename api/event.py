@@ -79,7 +79,28 @@ class BrowseEventOutput:
 @router.get("/event")
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0):
-
+    """
+    ### Search String Example:
+    ```
+    [["is_private", "false"], ["duration", "SHORT"]]
+    ```
+    ### **Available Search Fields**:
+    - is_private: bool
+    - category_id: int
+    - intensity: `LOW`, `INTERMEDIATE`, `HIGH`
+    - duration:
+        - `SHORT` (< 30 mins)
+        - `MEDIUM` (30 - 90 mins)
+        - `LONG` (> 90 mins)
+    - day_time:
+        - `MORNING` (5-12)
+        - `AFTERNOON` (12-18)
+        - `EVENING` (18-23)
+        - `NIGHT` (23-5)
+    - start_date: datetime
+    - end_date: datetime
+    - time_interval **(upcoming event only)** : str (postgres time interval) (default: `1 week`)
+    """
     results = []
     filter_dict = dict()
 
