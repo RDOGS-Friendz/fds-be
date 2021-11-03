@@ -23,7 +23,7 @@ class PatchFriendInput(BaseModel):
     friend_request_id: int
     action: str
 
-@router.get("/account/{account_id}/friends")
+@router.get("/account/{account_id}/friends", response_model=do.FriendOutput)
 async def read_account_friends(account_id: int, request: Request):
     """
     ### Auth
@@ -34,7 +34,7 @@ async def read_account_friends(account_id: int, request: Request):
     list = await db.friend.get_account_friends(account_id=account_id)
     return do.FriendOutput(friend_account_id=list)
 
-@router.get("/account/{account_id}/friend-request")
+@router.get("/account/{account_id}/friend-request", response_model=do.FriendRequestOutput)
 async def read_account_friend_requests(account_id: int, request: Request):
     """
     ### Auth
@@ -45,7 +45,13 @@ async def read_account_friend_requests(account_id: int, request: Request):
     list = await db.friend.get_friend_requests(account_id=account_id)
     return do.FriendRequestOutput(friend_request_id=list)
 
-@router.post("/account/{account_id}/friend-request")
+
+@dataclass
+class AddFriendOutput:
+    id: int
+
+
+@router.post("/account/{account_id}/friend-request", response_model=AddFriendOutput)
 async def send_friend_request(account_id: int, data: AddFriendInput, request: Request) -> do.AddOutput:
     """
     ### Auth
@@ -59,8 +65,9 @@ async def send_friend_request(account_id: int, data: AddFriendInput, request: Re
         raise HTTPException(status_code=400, detail="You are already friends")
     return do.AddOutput(id=data.friend_account_id)
 
+
 @router.patch("/account/{account_id}/friend-request")
-async def edit_friend_request(account_id: int, data: PatchFriendInput, request: Request) -> do.AddOutput:
+async def edit_friend_request(account_id: int, data: PatchFriendInput, request: Request):
     """
     ### Auth
     - Self

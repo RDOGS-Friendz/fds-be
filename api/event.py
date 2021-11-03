@@ -28,7 +28,13 @@ class AddEventInput(BaseModel):
     num_people_wanted: int
     description: str
 
-@router.post("/event")
+
+@dataclass
+class AddEventOutput:
+    id: int
+
+
+@router.post("/event", response_model=AddEventOutput)
 async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
     event_id = await db.event.add_event(title=data.title, is_private=data.is_private, location_id=data.location_id,
      category_id=data.category_id, intensity=data.intensity, start_time=data.start_time, end_time=data.end_time, max_participant_count=data.num_people_wanted, creator_account_id=request.state.id, description=data.description)
@@ -38,7 +44,7 @@ async def add_event(data: AddEventInput, request: Request) -> do.AddOutput:
 
 # TODO: exceptions
 # TODO: no permission for other users?
-@router.get("/event/bookmarked", tags=['Bookmark'])
+@router.get("/event/bookmarked", tags=['Bookmark'], response_model=do.Event)
 async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
     """
     ### Auth
@@ -54,8 +60,24 @@ async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int
     return events
 
 
+@dataclass
+class ReadEventOutput:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: datetime
+    start_time: datetime
+    end_time: datetime
+    max_participant_count: int
+    creator_account_id: int
+    description: str
+
+
 # TODO: deal with private event
-@router.get("/event/{event_id}")
+@router.get("/event/{event_id}", response_model=ReadEventOutput)
 async def read_event(event_id: int, request: Request) -> do.Event:
     """
     ### Auth

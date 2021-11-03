@@ -22,7 +22,11 @@ class AddReactionInput(BaseModel):
 class EditReactionInput(BaseModel):
     content: str
 
-@router.post("/event/{event_id}/reaction")
+@dataclass
+class AddReactionOutput:
+    id: int
+
+@router.post("/event/{event_id}/reaction", response_model=AddReactionOutput)
 async def add_reaction(event_id: int, data: AddReactionInput, request: Request) -> do.AddOutput:
     """
     ### Auth
@@ -33,7 +37,7 @@ async def add_reaction(event_id: int, data: AddReactionInput, request: Request) 
         raise HTTPException(status_code=400, detail="System Exception")
     return do.AddOutput(id=int(result['id']))
 
-@router.get("/event/{event_id}/reaction")
+@router.get("/event/{event_id}/reaction", response_model=do.ReactionsOutput)
 async def browse_event_reactions(event_id: int):
     result = await db.reaction.read_event_reactions(event_id=event_id)
     results = [do.Reaction(id=item['id'], event_id=item['event_id'], content=item['content'], author_id=item['author_id']) for item in result]

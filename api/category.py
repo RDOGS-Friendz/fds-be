@@ -14,12 +14,13 @@ router = APIRouter(
     tags=['Category'],
 )
 
-@router.get("/category/{category_id}")
+@router.get("/category/{category_id}", response_model=do.Category)
 async def read_category(category_id: int):
     result = await db.category.read_category(category_id=category_id)
     if result:
         return do.Category(id=result['id'], name=result['name'])
     raise HTTPException(status_code=404, detail="Not Found")
+
 
 @router.get("/category")
 async def browse_all_category():

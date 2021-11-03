@@ -28,7 +28,7 @@ class LoginOutput:
     account_id: int
 
 
-@router.post("/jwt")
+@router.post("/jwt", response_model=LoginOutput)
 async def login(data: LoginInput) -> Sequence[do.Account]:
     account = await db.account.read_by_username(username=data.username)
     if not security.verify_password(to_test=data.password, hashed=account.pass_hash):
@@ -55,8 +55,8 @@ class AddAccountInput(BaseModel):
     about: Optional[str] = ''
 
 
-@router.post("/account")
-async def add_account(data: AddAccountInput) -> do.AddOutput:
+@router.post("/account", response_model=do.AddOutput)
+async def add_account(data: AddAccountInput):
     try:
         account_id = await db.account.add(username=data.username, pass_hash=security.hash_password(password=data.password),
                                           real_name=data.real_name, email=data.email, gender=data.gender, is_superuser=data.is_superuser)
@@ -75,7 +75,7 @@ class BrowseAccountOutput:
     real_name: str
 
 
-@router.get("/account")
+@router.get("/account", response_model=BrowseAccountOutput)
 async def browse_account(request: Request, search: str = '') -> Sequence[do.Account]:
 
     result = await db.account.browse_by_search(to_search=search)
@@ -85,7 +85,14 @@ async def browse_account(request: Request, search: str = '') -> Sequence[do.Acco
             for account in result]
 
 
-@router.get("/account/batch")
+@dataclass
+class BatchAccountOutput:
+    account_id: int
+    username: str
+    real_name: str
+
+
+@router.get("/account/batch", response_model=BatchAccountOutput)
 async def batch_get_account(account_ids: pydantic.Json, request: Request) -> Sequence[do.Account]:
     account_ids = pydantic.parse_obj_as(list[int], account_ids)
     if not account_ids:
