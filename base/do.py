@@ -47,7 +47,7 @@ class Profile:
     tagline: str
     department_id: int
     social_media_link: str
-    birthday: datetime
+    birthday: str
     about: str
 
 

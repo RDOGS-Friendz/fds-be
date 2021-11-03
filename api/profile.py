@@ -24,7 +24,7 @@ class ReadProfileOutput:
     tagline: str
     department: str
     social_media_acct: str
-    birthday: datetime
+    birthday: str
     preferred_category_id: Sequence[int]
     about: str
 
