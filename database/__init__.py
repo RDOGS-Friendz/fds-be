@@ -7,6 +7,7 @@ from . import (
     location,
     event,
     event_participant,
+    event_view,
     reaction,
     bookmark,
     event_bookmark,

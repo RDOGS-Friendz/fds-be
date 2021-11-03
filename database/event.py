@@ -9,7 +9,6 @@ from base import do, enum
 from middleware.response import json_serial
 
 
-# WIP view
 async def browse(limit: int, offset: int) -> Sequence[do.Event]:
     query = (
         fr"SELECT id, title, is_private, location_id, category_id, intensity, create_time, "

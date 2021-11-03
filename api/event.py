@@ -1,3 +1,4 @@
+import pydantic
 from typing import Sequence, Optional
 from datetime import datetime
 
@@ -56,6 +57,36 @@ class EditEventInput(BaseModel):
     num_people_wanted: int = None
     description: str = None
 
+
+@dataclass
+class BrowseEventOutput:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: str
+    start_time: str
+    end_time: str
+    max_participant_count: int
+    creator_account_id: int
+    description: str
+    participant_ids: Sequence[int]
+
+
+@router.get("/event")
+async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
+                       limit: int = 50, offset: int = 0 ) -> Sequence[do.Account]:
+
+    results = await db.event_view.view_suggested(viewer_id=request.state.id, filter=search, limit=limit, offset=offset)
+    return [BrowseEventOutput(id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
+                              category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
+                              start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
+                              creator_account_id=event.creator_account_id, description=event.description, participant_ids=participant_ids)
+            for (event, participant_ids)  in results]
+
+
 @router.patch("/event/{event_id}")
 async def edit_event(event_id: int, data: EditEventInput, request: Request) -> None:
     """
@@ -87,23 +118,6 @@ async def delete_event(event_id: int, request: Request) -> None:
         await db.event.delete_event(event_id=event_id, account_id=request.state.id)
     except:
         raise HTTPException(status_code=400, detail="System Exception")
-
-# filter -> view -> limit, offset
-@router.get("/event")
-async def browse_event(request: Request, filter: str, view: enum.EventViewType,
-                       limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
-    """
-    ### Auth
-    - Self
-    """
-    # if request.state.id is not account_id:
-    #     raise HTTPException(status_code=400, detail="No Permission")
-
-    event_bookmarks = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id)
-    events = await db.event.batch_read(event_ids=[bookmark.event_id for bookmark in event_bookmarks],
-                                       limit=limit, offset=offset)
-
-    return events
 
 
 # TODO: exceptions
