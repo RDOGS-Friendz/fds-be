@@ -101,3 +101,21 @@ async def join_event(event_id: int, account_id: int):
         fr" ON CONFLICT DO NOTHING"
     )
     await database.fetch_one(query=query)
+
+async def get_event_participants_cnt(event_id: int):
+    query = (
+        fr"SELECT COUNT(*)"
+        fr"   FROM event_participant"
+        fr" WHERE event_id={event_id}"
+    )
+    result = await database.fetch_one(query=query)
+    return int(result['count'])
+
+async def get_event_max_participants_cnt(event_id: int):
+    query = (
+        fr"SELECT max_participant_count"
+        fr"   FROM event"
+        fr" WHERE id={event_id}"
+    )
+    result = await database.fetch_one(query=query)
+    return int(result['max_participant_count'])

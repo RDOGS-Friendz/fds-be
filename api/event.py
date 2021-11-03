@@ -96,4 +96,19 @@ async def read_event(event_id: int, request: Request) -> do.Event:
 
     return event
 
+@router.post("/event/{event_id}/join")
+async def join_event(event_id: int, request: Request):
+    """
+    ### Auth
+    - Self
+    """
+    cur_participants_cnt = await db.event.get_event_participants_cnt(event_id=event_id)
+    max_participants_cnt = await db.event.get_event_max_participants_cnt(event_id=event_id)
 
+    if cur_participants_cnt < max_participants_cnt:
+        try:
+            await db.event.join_event(event_id=event_id, account_id=request.state.id)
+        except:
+            raise HTTPException(status_code=400, detail="System Exception")
+    else:
+        raise HTTPException(status_code=400, detail="Max Limitation")
