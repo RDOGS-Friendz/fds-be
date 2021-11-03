@@ -93,7 +93,7 @@ class BatchAccountOutput:
 
 
 @router.get("/account/batch", response_model=Sequence[BatchAccountOutput])
-async def batch_get_account(account_ids: pydantic.Json, request: Request) -> Sequence[do.Account]:
+async def batch_get_account(account_ids: pydantic.Json, request: Request):
     account_ids = pydantic.parse_obj_as(list[int], account_ids)
     if not account_ids:
         return []
@@ -110,6 +110,6 @@ class EditAccountPrivacyInput(BaseModel):
 
 
 @router.patch("/account/{account_id}/privacy")
-async def edit_account_privacy(account_id: int, data: EditAccountPrivacyInput, request: Request) -> int:
+async def edit_account_privacy(account_id: int, data: EditAccountPrivacyInput, request: Request):
     await db.account.edit_privacy(account_id=account_id, is_real_name_private=(not data.display_real_name))
     await db.profile.edit_privacy(account_id=account_id, is_birthday_private=(not data.display_birthday))
