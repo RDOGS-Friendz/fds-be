@@ -35,7 +35,7 @@ async def edit_reaction(event_id: int, account_id: int, content: str):
     query = (
         fr"UPDATE event_account_reaction"
         fr"  SET content='{content}'"
-        fr" WHERE event_id={event_id} AND account_id={account_id}"
+        fr" WHERE event_id={event_id} AND author_id={account_id}"
         fr" RETURNING id"
     )
     await database.fetch_one(query=query)
