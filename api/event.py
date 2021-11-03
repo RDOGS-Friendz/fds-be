@@ -79,7 +79,15 @@ class BrowseEventOutput:
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0 ) -> Sequence[do.Account]:
 
-    results = await db.event_view.view_suggested(viewer_id=request.state.id, filter=search, limit=limit, offset=offset)
+    results = None
+
+    if view is enum.EventViewType.all:
+        results = await db.event_view.view_all(viewer_id=request.state.id, filter=search, limit=limit, offset=offset)
+    elif view is enum.EventViewType.suggested:
+        results = await db.event_view.view_suggested(viewer_id=request.state.id, filter=search, limit=limit, offset=offset)
+    # elif view is enum.EventViewType.upcoming:
+
+
     return [BrowseEventOutput(id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
                               category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
                               start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
