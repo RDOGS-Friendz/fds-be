@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from base import do, enum
 import database as db
 from middleware.dependencies import get_token_header
+from middleware.response import SuccessResponse
 
 router = APIRouter(
     tags=['Reaction'],
@@ -51,6 +52,7 @@ async def edit_event_reaction(event_id: int, data: EditReactionInput, request: R
     """
     try:
         await db.reaction.edit_reaction(event_id=event_id, account_id=request.state.id, content=data.content)
+        return SuccessResponse()
     except:
         raise HTTPException(status_code=400, detail="System Exception")
 
@@ -63,4 +65,4 @@ async def delete_event_reaction(event_id: int, request: Request):
     result = await db.reaction.delete_reaction(event_id=event_id, account_id=request.state.id)
     if result == None:
         raise HTTPException(status_code=400, detail="No Permission")
-    return do.AddOutput(id=int(result['id']))
+    return SuccessResponse()

@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from base import do, enum
 import database as db
 from middleware.dependencies import get_token_header
+from middleware.response import SuccessResponse
 
 router = APIRouter(
     tags=['Bookmark'],
@@ -32,6 +33,7 @@ async def add_bookmark(event_id: int, request: Request):
         raise HTTPException(status_code=400, detail="System Exception")
     return do.AddOutput(id=int(result['id']))
 
+
 @router.delete("/event/{event_id}/bookmark")
 async def delete_bookmark(event_id: int, request: Request):
     """
@@ -41,4 +43,4 @@ async def delete_bookmark(event_id: int, request: Request):
     result = await db.bookmark.delete_bookmark(event_id=event_id, account_id=request.state.id)
     if result == None:
         raise HTTPException(status_code=400, detail="No Permission")
-    return do.AddOutput(id=int(result['id']))
+    return SuccessResponse()

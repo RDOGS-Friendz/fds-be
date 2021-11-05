@@ -1,3 +1,5 @@
+import json
+
 import pydantic
 import asyncpg
 from typing import Sequence, Optional
@@ -10,6 +12,7 @@ from pydantic import BaseModel
 from base import do, enum, security
 import database as db
 from middleware.dependencies import get_token_header
+from middleware.response import SuccessResponse
 
 router = APIRouter(
     tags=['Account'],
@@ -111,5 +114,9 @@ class EditAccountPrivacyInput(BaseModel):
 
 @router.patch("/account/{account_id}/privacy")
 async def edit_account_privacy(account_id: int, data: EditAccountPrivacyInput, request: Request):
-    await db.account.edit_privacy(account_id=account_id, is_real_name_private=(not data.display_real_name))
-    await db.profile.edit_privacy(account_id=account_id, is_birthday_private=(not data.display_birthday))
+    try:
+        await db.account.edit_privacy(account_id=account_id, is_real_name_private=(not data.display_real_name))
+        await db.profile.edit_privacy(account_id=account_id, is_birthday_private=(not data.display_birthday))
+        return SuccessResponse()
+    except:
+        raise HTTPException(status_code=400, detail="System Exception")

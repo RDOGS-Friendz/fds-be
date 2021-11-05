@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import database as db
 from base import do
 from middleware.dependencies import get_token_header
+from middleware.response import SuccessResponse
 
 
 router = APIRouter(
@@ -66,7 +67,7 @@ class EditProfileInput(BaseModel):
 
 
 @router.patch("/account/{account_id}/profile")
-async def edit_account_profile(account_id: int, data: EditProfileInput, request: Request) -> None:
+async def edit_account_profile(account_id: int, data: EditProfileInput, request: Request):
     """
     ### Auth
     - Self
@@ -75,6 +76,7 @@ async def edit_account_profile(account_id: int, data: EditProfileInput, request:
         raise HTTPException(status_code=400, detail="No Permission")
 
     preferred_category_ids = pydantic.parse_obj_as(list[int], data.preferred_category_id)
+
     await db.profile.edit_under_account(account_id=account_id,
                                         tagline=data.tagline,
                                         department_name=data.department,
@@ -82,3 +84,4 @@ async def edit_account_profile(account_id: int, data: EditProfileInput, request:
                                         birthday=data.birthday,
                                         preferred_category_ids=preferred_category_ids,
                                         about=data.about)
+    return SuccessResponse()

@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import fastapi
 
 
 def json_serial(obj):
@@ -6,3 +7,7 @@ def json_serial(obj):
 
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
+
+
+def SuccessResponse():
+    return fastapi.responses.JSONResponse(content={"detail": "Success"})

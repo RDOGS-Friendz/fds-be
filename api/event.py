@@ -13,7 +13,7 @@ from base import do, enum
 import database as db
 from database import event
 from middleware.dependencies import get_token_header
-from middleware.response import json_serial
+from middleware.response import SuccessResponse
 
 router = APIRouter(
     tags=['Event'],
@@ -127,7 +127,7 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
 
 
 @router.patch("/event/{event_id}")
-async def edit_event(event_id: int, data: EditEventInput, request: Request) -> None:
+async def edit_event(event_id: int, data: EditEventInput, request: Request):
     """
     ### Auth
     - Creator
@@ -144,36 +144,29 @@ async def edit_event(event_id: int, data: EditEventInput, request: Request) -> N
                                   end_time=data.end_time,
                                   max_participant_count=data.num_people_wanted,
                                   description=data.description)
+        return SuccessResponse()
     except:
         raise HTTPException(status_code=400, detail="System Exception")
 
 @router.delete("/event/{event_id}")
-async def delete_event(event_id: int, request: Request) -> None:
+async def delete_event(event_id: int, request: Request):
     """
     ### Auth
     - Creator
     """
     try:
         await db.event.delete_event(event_id=event_id, account_id=request.state.id)
+        return SuccessResponse()
     except:
         raise HTTPException(status_code=400, detail="System Exception")
 
 
 # TODO: exceptions
-# TODO: no permission for other users?
 @router.get("/event/bookmarked", tags=['Bookmark'], response_model=Sequence[do.Event])
 async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
-    """
-    ### Auth
-    - Self
-    """
-    # if request.state.id is not account_id:
-    #     raise HTTPException(status_code=400, detail="No Permission")
-
     event_bookmarks = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id)
     events = await db.event.batch_read(event_ids=[bookmark.event_id for bookmark in event_bookmarks],
                                        limit=limit, offset=offset)
-
     return events
 
 
@@ -234,6 +227,7 @@ async def join_event(event_id: int, request: Request):
     if cur_participants_cnt < max_participants_cnt:
         try:
             await db.event.join_event(event_id=event_id, account_id=request.state.id)
+            return SuccessResponse()
         except:
             raise HTTPException(status_code=400, detail="System Exception")
     else:
@@ -247,5 +241,6 @@ async def cancel_join_event(event_id: int, request: Request) -> None:
     """
     try:
         await db.event.cancel_join_event(event_id=event_id, account_id=request.state.id)
+        return SuccessResponse()
     except:
         raise HTTPException(status_code=400, detail="System Exception")
