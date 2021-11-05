@@ -208,3 +208,97 @@ CREATE TABLE public.account_category (
 	CONSTRAINT profile_category_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.account(id),
 	CONSTRAINT profile_category_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.category(id)
 );
+
+
+-- functions
+
+CREATE OR REPLACE FUNCTION get_account_friend(account_id INTEGER)
+ RETURNS INTEGER[]
+ LANGUAGE plpgsql
+AS $function$
+   DECLARE
+     friend_ids INTEGER[];
+   BEGIN
+     SELECT ARRAY_AGG(friend_id) FROM
+     ( SELECT DISTINCT UNNEST(ARRAY[requester_id, addressee_id]) AS friend_id
+     		INTO friend_ids
+	     	FROM friendship
+     		WHERE (status='ACCEPTED')
+      		AND (requester_id = account_id OR addressee_id = account_id) ) AS t;
+      RETURN friend_ids;
+   END;
+  $function$
+;
+
+
+CREATE OR REPLACE FUNCTION public.event_joined_by_friend(viewer_id INTEGER)
+ RETURNS INTEGER[]
+ LANGUAGE plpgsql
+AS $function$
+   DECLARE
+     event_ids INTEGER[];
+   BEGIN
+     SELECT distinct array_agg(event_id) FROM event_participant
+     INTO event_ids
+		     WHERE account_id IN (
+		           SELECT * FROM (SELECT DISTINCT UNNEST(ARRAY[requester_id, addressee_id]) AS friend_id
+			     	FROM friendship
+		     		WHERE (status='ACCEPTED')
+		      		AND (requester_id = viewer_id OR addressee_id = viewer_id) ) AS t
+		      		WHERE friend_id != viewer_id);
+      RETURN event_ids;
+   END;
+  $function$
+;
+
+
+-- view for event
+
+-- public.view_event source
+
+CREATE OR REPLACE VIEW public.view_event
+AS SELECT t.id,
+    t.title,
+    t.is_private,
+    t.location_id,
+    t.category_id,
+    t.intensity,
+    t.create_time,
+    t.start_time,
+    t.end_time,
+    t.max_participant_count,
+    t.creator_account_id,
+    t.description,
+    t.duration,
+    t.day_time,
+    t.participant_id,
+    t.start_date
+   FROM ( SELECT event.id,
+            event.title,
+            event.is_private,
+            event.location_id,
+            event.category_id,
+            event.intensity,
+            event.create_time,
+            event.start_time,
+            event.end_time,
+            event.max_participant_count,
+            event.creator_account_id,
+            event.description,
+                CASE
+                    WHEN (event.end_time - event.start_time) < '00:30:00'::interval THEN 'SHORT'::text
+                    WHEN (event.end_time - event.start_time) >= '00:30:00'::interval AND (event.end_time - event.start_time) < '01:30:00'::interval THEN 'MEDIUM'::text
+                    ELSE 'LONG'::text
+                END AS duration,
+                CASE
+                    WHEN date_part('hour'::text, event.start_time) >= 5::double precision AND date_part('hour'::text, event.start_time) <= 12::double precision THEN 'MORNING'::text
+                    WHEN date_part('hour'::text, event.start_time) >= 12::double precision AND date_part('hour'::text, event.start_time) <= 18::double precision THEN 'AFTERNOON'::text
+                    WHEN date_part('hour'::text, event.start_time) >= 18::double precision AND date_part('hour'::text, event.start_time) <= 23::double precision THEN 'EVENING'::text
+                    ELSE 'NIGHT'::text
+                END AS day_time,
+            ( SELECT DISTINCT array_agg(ep.account_id) AS array_agg
+                   FROM event e
+                     LEFT JOIN event_participant ep ON ep.event_id = e.id
+                  WHERE ep.account_id IS NOT NULL AND event.id = ep.event_id) AS participant_id,
+            event.start_time::date AS start_date
+           FROM event) t;
