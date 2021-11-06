@@ -60,7 +60,7 @@ class EditEventInput(BaseModel):
 
 
 @dataclass
-class ReadEventOutput:
+class EventOutput:
     id: int
     title: str
     is_private: bool
@@ -78,11 +78,11 @@ class ReadEventOutput:
 
 @dataclass
 class BrowseEventOutput:
-    data: Sequence[ReadEventOutput]
+    data: Sequence[EventOutput]
     total_count: int
 
 
-@router.get("/event")
+@router.get("/event", response_model=BrowseEventOutput)
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0):
     """
@@ -126,7 +126,7 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
         results, total_count = await db.event_view.view_all(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
 
     return BrowseEventOutput(
-        data=[ReadEventOutput(
+        data=[EventOutput(
                 id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
                 category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
                 start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
@@ -178,6 +178,23 @@ async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int
     events = await db.event.batch_read(event_ids=[bookmark.event_id for bookmark in event_bookmarks],
                                        limit=limit, offset=offset)
     return events
+
+
+@dataclass
+class ReadEventOutput:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: str
+    start_time: str
+    end_time: str
+    max_participant_count: int
+    creator_account_id: int
+    description: Optional[str]
+    participant_ids: Sequence[int]
 
 
 @router.get("/event/{event_id}", response_model=ReadEventOutput)
