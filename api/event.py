@@ -72,11 +72,11 @@ class BrowseEventOutput:
     end_time: str
     max_participant_count: int
     creator_account_id: int
-    description: str
+    description: Optional[str]
     participant_ids: Sequence[int]
 
 
-@router.get("/event")
+@router.get("/event", response_model=Sequence[BrowseEventOutput])
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0):
     """
@@ -184,7 +184,8 @@ class ReadEventOutput:
     end_time: str
     max_participant_count: int
     creator_account_id: int
-    description: str
+    description: Optional[str]
+    participant_ids: Sequence[int]
 
 
 # TODO: deal with private event
@@ -213,7 +214,11 @@ async def read_event(event_id: int, request: Request) -> do.Event:
     if is_private and (not is_self and not is_joined and not is_friend):
         raise HTTPException(status_code=400, detail="No Permission")
 
-    return event
+    return ReadEventOutput(id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
+                           category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
+                           start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
+                           creator_account_id=event.creator_account_id, description=event.description,
+                           participant_ids=participant_ids if participant_ids else [])
 
 
 @router.post("/event/{event_id}/join")
