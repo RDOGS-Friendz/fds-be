@@ -60,7 +60,7 @@ class EditEventInput(BaseModel):
 
 
 @dataclass
-class BrowseEventOutput:
+class ReadEventOutput:
     id: int
     title: str
     is_private: bool
@@ -76,7 +76,13 @@ class BrowseEventOutput:
     participant_ids: Sequence[int]
 
 
-@router.get("/event", response_model=Sequence[BrowseEventOutput])
+@dataclass
+class BrowseEventOutput:
+    data: Optional[Sequence[ReadEventOutput]]
+    total_count: int
+
+
+@router.get("/event", response_model=BrowseEventOutput)
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0):
     """
@@ -111,20 +117,23 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
             filter_dict[filter_[0]] = filter_[1]
 
     if view is enum.EventViewType.suggested:
-        results = await db.event_view.view_suggested(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
+        results, total_count = await db.event_view.view_suggested(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
     elif view is enum.EventViewType.upcoming:
-        results = await db.event_view.view_upcoming(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
+        results, total_count = await db.event_view.view_upcoming(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
     elif view is enum.EventViewType.joined_by_friend:
-        results = await db.event_view.view_joined_by_friend(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
+        results, total_count = await db.event_view.view_joined_by_friend(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
     else:  # all
-        results = await db.event_view.view_all(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
+        results, total_count = await db.event_view.view_all(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
 
-    return [BrowseEventOutput(id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
-                              category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
-                              start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
-                              creator_account_id=event.creator_account_id, description=event.description,
-                              participant_ids=participant_ids if participant_ids else [])
-            for (event, participant_ids) in results]
+    return BrowseEventOutput(
+        data=[ReadEventOutput(
+                id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
+                category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
+                start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
+                creator_account_id=event.creator_account_id, description=event.description,
+                participant_ids=participant_ids if participant_ids else [])
+            for (event, participant_ids) in results],
+        total_count=total_count)
 
 
 @router.patch("/event/{event_id}")
@@ -171,24 +180,6 @@ async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int
     return events
 
 
-@dataclass
-class ReadEventOutput:
-    id: int
-    title: str
-    is_private: bool
-    location_id: int
-    category_id: int
-    intensity: enum.IntensityType
-    create_time: str
-    start_time: str
-    end_time: str
-    max_participant_count: int
-    creator_account_id: int
-    description: Optional[str]
-    participant_ids: Sequence[int]
-
-
-# TODO: deal with private event
 @router.get("/event/{event_id}", response_model=ReadEventOutput)
 async def read_event(event_id: int, request: Request) -> do.Event:
     """
