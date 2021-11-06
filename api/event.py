@@ -171,13 +171,42 @@ async def delete_event(event_id: int, request: Request):
         raise HTTPException(status_code=400, detail="System Exception")
 
 
-# TODO: exceptions
-@router.get("/event/bookmarked", tags=['Bookmark'], response_model=Sequence[do.Event])
+@dataclass
+class BookmarkedEventOutput:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: str
+    start_time: str
+    end_time: str
+    max_participant_count: int
+    creator_account_id: int
+    description: Optional[str]
+    participant_ids: Sequence[int]
+
+
+@dataclass
+class BrowseBookmarkedEventOutput:
+    data: Sequence[BookmarkedEventOutput]
+    total_count: int
+
+
+@router.get("/event/bookmarked", tags=['Bookmark'], response_model=BrowseBookmarkedEventOutput)
 async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
-    event_bookmarks = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id)
-    events = await db.event.batch_read(event_ids=[bookmark.event_id for bookmark in event_bookmarks],
-                                       limit=limit, offset=offset)
-    return events
+    results, total_count = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id,
+                                                                            limit=limit, offset=offset)
+    return BrowseEventOutput(
+        data=[EventOutput(
+            id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
+            category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
+            start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
+            creator_account_id=event.creator_account_id, description=event.description,
+            participant_ids=participant_ids if participant_ids else [])
+            for (event, participant_ids) in results],
+        total_count=total_count)
 
 
 @dataclass
