@@ -78,11 +78,11 @@ class ReadEventOutput:
 
 @dataclass
 class BrowseEventOutput:
-    data: Optional[Sequence[ReadEventOutput]]
+    data: Sequence[ReadEventOutput]
     total_count: int
 
 
-@router.get("/event", response_model=BrowseEventOutput)
+@router.get("/event")
 async def browse_event(request: Request, view: enum.EventViewType, search: Optional[pydantic.Json] = '',
                        limit: int = 50, offset: int = 0):
     """
