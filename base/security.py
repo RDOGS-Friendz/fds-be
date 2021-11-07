@@ -13,18 +13,22 @@ _jwt_encoder = partial(jwt.encode, key=jwt_config.jwt_secret, algorithm=jwt_conf
 _jwt_decoder = partial(jwt.decode, key=jwt_config.jwt_secret, algorithms=[jwt_config.jwt_encode_algorithm])
 
 
-def encode_jwt(account_id: int) -> str:
+def encode_jwt(account_id: int, expire: timedelta) -> str:
     return _jwt_encoder({
-        'account-id': account_id
+        'account-id': account_id,
+        'expire': (datetime.now() + expire).isoformat(),
     })
 
 
-def decode_jwt(encoded: str) -> int:
+def decode_jwt(encoded: str, time: datetime) -> int:
     try:
         decoded = _jwt_decoder(encoded)
     except jwt.DecodeError:  # FIXME: catch failed
         raise HTTPException(status_code=400, detail="Login Failed")
 
+    expire = datetime.fromisoformat(decoded['expire'])
+    if time >= expire:
+        raise HTTPException(status_code=400, detail="Login Expired")
     return decoded['account-id']
 
 

@@ -1,5 +1,4 @@
 import json
-
 import pydantic
 import asyncpg
 from typing import Sequence, Optional
@@ -9,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from dataclasses import dataclass
 from pydantic import BaseModel
 
+from config import jwt_config
 from base import do, enum, security
 import database as db
 from middleware.dependencies import get_token_header
@@ -18,6 +18,26 @@ router = APIRouter(
     tags=['Account'],
     dependencies=[Depends(get_token_header)],
 )
+
+
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import AuthJWTException
+from datetime import timedelta
+
+class Settings(BaseModel):
+    authjwt_secret_key: str = "secret"
+    # Configure algorithms which is permit
+    authjwt_decode_algorithms: set = {"HS384","HS512"}
+
+@AuthJWT.load_config
+def get_config():
+    return Settings()
+
+@router.post('/create-dynamic-token')
+def create_dynamic_token(Authorize: AuthJWT = Depends()):
+    expires = timedelta(days=1)
+    token = Authorize.create_access_token(subject="test", expires_time=expires)
+    return {"token": token}
 
 
 class LoginInput(BaseModel):
@@ -36,9 +56,10 @@ async def login(data: LoginInput) -> Sequence[do.Account]:
     account = await db.account.read_by_username(username=data.username)
     if not security.verify_password(to_test=data.password, hashed=account.pass_hash):
         raise HTTPException(status_code=400, detail="Login Failed")
-
-    login_token = security.encode_jwt(account_id=account.id)
-
+    try:
+        login_token = security.encode_jwt(account_id=account.id, expire=jwt_config.login_expire)
+    except:
+        raise HTTPException(status_code=400, detail="Login Failed")
     return LoginOutput(auth_token=login_token, account_id=account.id)
 
 
