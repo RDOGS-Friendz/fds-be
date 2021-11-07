@@ -107,6 +107,25 @@ class Event:
     creator_account_id: int
     description: str
 
+
+@dataclass
+class EventView:
+    id: int
+    title: str
+    is_private: bool
+    location_id: int
+    category_id: int
+    intensity: enum.IntensityType
+    create_time: str
+    start_time: str
+    end_time: str
+    max_participant_count: int
+    creator_account_id: int
+    description: str
+    participant_ids: Sequence[int]
+    bookmarked: bool
+
+
 @dataclass
 class EventBookmark:
     id: int

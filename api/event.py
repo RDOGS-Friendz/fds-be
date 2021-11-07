@@ -74,6 +74,7 @@ class EventOutput:
     creator_account_id: int
     description: Optional[str]
     participant_ids: Sequence[int]
+    bookmarked: bool
 
 
 @dataclass
@@ -134,8 +135,9 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
                 category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
                 start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
                 creator_account_id=event.creator_account_id, description=event.description,
-                participant_ids=participant_ids if participant_ids else [])
-            for (event, participant_ids) in results],
+                participant_ids=event.participant_ids if event.participant_ids else [],
+                bookmarked=event.bookmarked)
+            for event in results],
         total_count=total_count)
 
 

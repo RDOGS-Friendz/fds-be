@@ -8,7 +8,7 @@ import const
 
 
 async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
-        -> Tuple[Sequence[Tuple[do.Event, Sequence[int]]], int]:
+        -> Tuple[Sequence[do.EventView], int]:
 
     filter_list = []
     customized_fields = ['start_date', 'end_date', 'title']
@@ -29,7 +29,9 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
 
     query = (
         fr"SELECT * FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT *, "
+        fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
+        fr" FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
@@ -55,25 +57,25 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
     )
     total_count = await database.fetch_one(query=cnt_query)
 
-    return ([(do.Event(id=result["id"],
-                      title=result["title"],
-                      is_private=result["is_private"],
-                      location_id=result["location_id"],
-                      category_id=result["category_id"],
-                      intensity=enum.IntensityType(result["intensity"]),
-                      create_time=json_serial(result["create_time"]),
-                      start_time=json_serial(result["start_time"]),
-                      end_time=json_serial(result["end_time"]),
-                      max_participant_count=result["max_participant_count"],
-                      creator_account_id=result["creator_account_id"],
-                      description=result["description"]
-                     ),
-             result["participant_id"])
+    return ([do.EventView(id=result["id"],
+                          title=result["title"],
+                          is_private=result["is_private"],
+                          location_id=result["location_id"],
+                          category_id=result["category_id"],
+                          intensity=enum.IntensityType(result["intensity"]),
+                          create_time=json_serial(result["create_time"]),
+                          start_time=json_serial(result["start_time"]),
+                          end_time=json_serial(result["end_time"]),
+                          max_participant_count=result["max_participant_count"],
+                          creator_account_id=result["creator_account_id"],
+                          description=result["description"],
+                          participant_ids=result["participant_id"],
+                          bookmarked=result["is_bookmarked"])
             for result in results], int(total_count["count"]))
 
 
 async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
-        -> Tuple[Sequence[Tuple[do.Event, Sequence[int]]], int]:
+        -> Tuple[Sequence[do.EventView], int]:
     filter_list = []
     customized_fields = ['start_date', 'end_date']
 
@@ -90,7 +92,9 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
 
     query = (
         fr"SELECT * FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT *, "
+        fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
+        fr"  FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
@@ -120,25 +124,25 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
     )
     total_count = await database.fetch_one(query=cnt_query)
 
-    return ([(do.Event(id=result["id"],
-                       title=result["title"],
-                       is_private=result["is_private"],
-                       location_id=result["location_id"],
-                       category_id=result["category_id"],
-                       intensity=enum.IntensityType(result["intensity"]),
-                       create_time=json_serial(result["create_time"]),
-                       start_time=json_serial(result["start_time"]),
-                       end_time=json_serial(result["end_time"]),
-                       max_participant_count=result["max_participant_count"],
-                       creator_account_id=result["creator_account_id"],
-                       description=result["description"]
-                       ),
-              result["participant_id"])
+    return ([do.EventView(id=result["id"],
+                          title=result["title"],
+                          is_private=result["is_private"],
+                          location_id=result["location_id"],
+                          category_id=result["category_id"],
+                          intensity=enum.IntensityType(result["intensity"]),
+                          create_time=json_serial(result["create_time"]),
+                          start_time=json_serial(result["start_time"]),
+                          end_time=json_serial(result["end_time"]),
+                          max_participant_count=result["max_participant_count"],
+                          creator_account_id=result["creator_account_id"],
+                          description=result["description"],
+                          participant_ids=result["participant_id"],
+                          bookmarked=result["is_bookmarked"])
              for result in results], int(total_count["count"]))
 
 
 async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
-        -> Tuple[Sequence[Tuple[do.Event, Sequence[int]]], int]:
+        -> Tuple[Sequence[do.EventView], int]:
     filter_list = []
     customized_fields = ['start_date', 'end_date', 'time_interval']
 
@@ -158,7 +162,9 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
 
     query = (
         fr"SELECT * FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT *, "
+        fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
+        fr"  FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
@@ -186,25 +192,25 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
     )
     total_count = await database.fetch_one(query=cnt_query)
 
-    return ([(do.Event(id=result["id"],
-                       title=result["title"],
-                       is_private=result["is_private"],
-                       location_id=result["location_id"],
-                       category_id=result["category_id"],
-                       intensity=enum.IntensityType(result["intensity"]),
-                       create_time=json_serial(result["create_time"]),
-                       start_time=json_serial(result["start_time"]),
-                       end_time=json_serial(result["end_time"]),
-                       max_participant_count=result["max_participant_count"],
-                       creator_account_id=result["creator_account_id"],
-                       description=result["description"]
-                       ),
-              result["participant_id"])
+    return ([do.EventView(id=result["id"],
+                          title=result["title"],
+                          is_private=result["is_private"],
+                          location_id=result["location_id"],
+                          category_id=result["category_id"],
+                          intensity=enum.IntensityType(result["intensity"]),
+                          create_time=json_serial(result["create_time"]),
+                          start_time=json_serial(result["start_time"]),
+                          end_time=json_serial(result["end_time"]),
+                          max_participant_count=result["max_participant_count"],
+                          creator_account_id=result["creator_account_id"],
+                          description=result["description"],
+                          participant_ids=result["participant_id"],
+                          bookmarked=result["is_bookmarked"])
              for result in results], int(total_count["count"]))
 
 
 async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
-        -> Tuple[Sequence[Tuple[do.Event, Sequence[int]]], int]:
+        -> Tuple[Sequence[do.EventView], int]:
     filter_list = []
     customized_fields = ['start_date', 'end_date']
 
@@ -221,7 +227,9 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
 
     query = (
         fr"SELECT * FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT *, "
+        fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
+        fr"  FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
         fr"   AND (NOT is_private"
@@ -249,25 +257,25 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
     )
     total_count = await database.fetch_one(query=cnt_query)
 
-    return ([(do.Event(id=result["id"],
-                       title=result["title"],
-                       is_private=result["is_private"],
-                       location_id=result["location_id"],
-                       category_id=result["category_id"],
-                       intensity=enum.IntensityType(result["intensity"]),
-                       create_time=json_serial(result["create_time"]),
-                       start_time=json_serial(result["start_time"]),
-                       end_time=json_serial(result["end_time"]),
-                       max_participant_count=result["max_participant_count"],
-                       creator_account_id=result["creator_account_id"],
-                       description=result["description"]
-                       ),
-              result["participant_id"])
+    return ([do.EventView(id=result["id"],
+                          title=result["title"],
+                          is_private=result["is_private"],
+                          location_id=result["location_id"],
+                          category_id=result["category_id"],
+                          intensity=enum.IntensityType(result["intensity"]),
+                          create_time=json_serial(result["create_time"]),
+                          start_time=json_serial(result["start_time"]),
+                          end_time=json_serial(result["end_time"]),
+                          max_participant_count=result["max_participant_count"],
+                          creator_account_id=result["creator_account_id"],
+                          description=result["description"],
+                          participant_ids=result["participant_id"],
+                          bookmarked=result["is_bookmarked"])
              for result in results], int(total_count["count"]))
 
 
 async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
-        -> Tuple[Sequence[Tuple[do.Event, Sequence[int]]], int]:
+        -> Tuple[Sequence[do.EventView], int]:
     filter_list = []
     customized_fields = ['start_date', 'end_date']
 
@@ -284,7 +292,9 @@ async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, of
 
     query = (
         fr"SELECT * FROM ("
-        fr" SELECT * FROM view_event "
+        fr" SELECT *, "
+        fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
+        fr"   FROM view_event"
         fr"  WHERE id IN (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id})"
         fr"    AND (NOT is_private "
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
@@ -310,18 +320,18 @@ async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, of
     )
     total_count = await database.fetch_one(query=cnt_query)
 
-    return ([(do.Event(id=result["id"],
-                       title=result["title"],
-                       is_private=result["is_private"],
-                       location_id=result["location_id"],
-                       category_id=result["category_id"],
-                       intensity=enum.IntensityType(result["intensity"]),
-                       create_time=json_serial(result["create_time"]),
-                       start_time=json_serial(result["start_time"]),
-                       end_time=json_serial(result["end_time"]),
-                       max_participant_count=result["max_participant_count"],
-                       creator_account_id=result["creator_account_id"],
-                       description=result["description"]
-                       ),
-              result["participant_id"])
+    return ([do.EventView(id=result["id"],
+                          title=result["title"],
+                          is_private=result["is_private"],
+                          location_id=result["location_id"],
+                          category_id=result["category_id"],
+                          intensity=enum.IntensityType(result["intensity"]),
+                          create_time=json_serial(result["create_time"]),
+                          start_time=json_serial(result["start_time"]),
+                          end_time=json_serial(result["end_time"]),
+                          max_participant_count=result["max_participant_count"],
+                          creator_account_id=result["creator_account_id"],
+                          description=result["description"],
+                          participant_ids=result["participant_id"],
+                          bookmarked=result["is_bookmarked"])
              for result in results], int(total_count["count"]))
