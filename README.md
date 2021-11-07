@@ -11,10 +11,24 @@ conda create --name fds-async python=3.9
 conda activate fds-async
 ```
 
+or create a virtual environment using `pipenv` (faster and lighter)
+
+```shell
+pip install pipenv
+pipenv shell
+```
+
 ### 1. Environment
 ```shell
 pip install -r requirements.txt
 copy .env.example .env
+```
+
+Or on Unix-based system, run
+
+```shell
+pip install -r requirements.txt
+cp .env.example .env
 ```
 
 Then fill out the environment variables in `.env`
