@@ -10,6 +10,5 @@ from . import (
     event_view,
     reaction,
     bookmark,
-    event_bookmark,
     department,
 )

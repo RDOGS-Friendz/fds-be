@@ -29,7 +29,8 @@ class FriendshipType(str, Enum):
     deleted = 'DELETED'
 
 class EventViewType(str, Enum):
+    all = 'all'
     suggested = 'suggested'
     upcoming = 'upcoming'
     joined_by_friend = 'joined-by-friend'
-    all = 'all'
+    bookmarked = 'bookmarked'

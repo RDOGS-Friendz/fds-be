@@ -122,6 +122,8 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
         results, total_count = await db.event_view.view_upcoming(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
     elif view is enum.EventViewType.joined_by_friend:
         results, total_count = await db.event_view.view_joined_by_friend(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
+    elif view is enum.EventViewType.bookmarked:
+        results, total_count = await db.event_view.view_bookmarked(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
     else:  # all
         results, total_count = await db.event_view.view_all(viewer_id=request.state.id, filter=filter_dict, limit=limit, offset=offset)
 
@@ -169,44 +171,6 @@ async def delete_event(event_id: int, request: Request):
         return SuccessResponse()
     except:
         raise HTTPException(status_code=400, detail="System Exception")
-
-
-@dataclass
-class BookmarkedEventOutput:
-    id: int
-    title: str
-    is_private: bool
-    location_id: int
-    category_id: int
-    intensity: enum.IntensityType
-    create_time: str
-    start_time: str
-    end_time: str
-    max_participant_count: int
-    creator_account_id: int
-    description: Optional[str]
-    participant_ids: Sequence[int]
-
-
-@dataclass
-class BrowseBookmarkedEventOutput:
-    data: Sequence[BookmarkedEventOutput]
-    total_count: int
-
-
-@router.get("/event/bookmarked", tags=['Bookmark'], response_model=BrowseBookmarkedEventOutput)
-async def browse_bookmarked_event(request: Request, limit: int = 50, offset: int = 0) -> Sequence[do.Event]:
-    results, total_count = await db.event_bookmark.browse_bookmarked_events(account_id=request.state.id,
-                                                                            limit=limit, offset=offset)
-    return BrowseEventOutput(
-        data=[EventOutput(
-            id=event.id, title=event.title, is_private=event.is_private, location_id=event.location_id,
-            category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
-            start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
-            creator_account_id=event.creator_account_id, description=event.description,
-            participant_ids=participant_ids if participant_ids else [])
-            for (event, participant_ids) in results],
-        total_count=total_count)
 
 
 @dataclass
