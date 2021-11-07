@@ -20,26 +20,6 @@ router = APIRouter(
 )
 
 
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from datetime import timedelta
-
-class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"
-    # Configure algorithms which is permit
-    authjwt_decode_algorithms: set = {"HS384","HS512"}
-
-@AuthJWT.load_config
-def get_config():
-    return Settings()
-
-@router.post('/create-dynamic-token')
-def create_dynamic_token(Authorize: AuthJWT = Depends()):
-    expires = timedelta(days=1)
-    token = Authorize.create_access_token(subject="test", expires_time=expires)
-    return {"token": token}
-
-
 class LoginInput(BaseModel):
     username: str
     password: str
