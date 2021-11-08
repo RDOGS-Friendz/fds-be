@@ -19,26 +19,30 @@ async def add_event(title: str, is_private: bool, location_id: int, category_id:
     result = await database.fetch_one(query=query)
     return int(result["id"])
 
-async def read_event(event_id: int):
+async def read_event(event_id: int, viewer_id: int) -> do.EventView:
     query = (
-        fr"SELECT id, title, is_private, location_id, category_id, intensity, "
-        fr"       create_time, start_time, end_time, max_participant_count, creator_account_id, description"
-        fr" FROM event"
+        fr"SELECT id, title, is_private, location_id, category_id, intensity, create_time, "
+        fr"       start_time, end_time, max_participant_count, creator_account_id, description, "
+        fr"       (SELECT ARRAY_AGG(account_id) FROM event_participant ep WHERE ep.event_id = {event_id}) AS participant_ids, "
+        fr"       id IN (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"
+        fr"  FROM event"
         fr" WHERE id={event_id}"
     )
     result = await database.fetch_one(query=query)
-    return do.Event(id=result["id"],
-                    title=result["title"],
-                    is_private=result["is_private"],
-                    location_id=result["location_id"],
-                    category_id=result["category_id"],
-                    intensity=enum.IntensityType(result["intensity"]),
-                    create_time=json_serial(result["create_time"]),
-                    start_time=json_serial(result["start_time"]),
-                    end_time=json_serial(result["end_time"]),
-                    max_participant_count=result["max_participant_count"],
-                    creator_account_id=result["creator_account_id"],
-                    description=result["description"])
+    return do.EventView(id=result["id"],
+                        title=result["title"],
+                        is_private=result["is_private"],
+                        location_id=result["location_id"],
+                        category_id=result["category_id"],
+                        intensity=enum.IntensityType(result["intensity"]),
+                        create_time=json_serial(result["create_time"]),
+                        start_time=json_serial(result["start_time"]),
+                        end_time=json_serial(result["end_time"]),
+                        max_participant_count=result["max_participant_count"],
+                        creator_account_id=result["creator_account_id"],
+                        description=result["description"],
+                        participant_ids=result["participant_ids"],
+                        bookmarked=result["is_bookmarked"])
 
 async def join_event(event_id: int, account_id: int):
     query = (

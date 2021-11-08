@@ -191,6 +191,7 @@ class ReadEventOutput:
     creator_account_id: int
     description: Optional[str]
     participant_ids: Sequence[int]
+    bookmarked: bool
 
 
 @router.get("/event/{event_id}", response_model=ReadEventOutput)
@@ -202,7 +203,7 @@ async def read_event(event_id: int, request: Request) -> do.Event:
     - Friend of Event Creator
     """
     try:
-        event = await db.event.read_event(event_id=event_id)
+        event = await db.event.read_event(event_id=event_id, viewer_id=request.state.id)
     except:
         raise HTTPException(status_code=404, detail="Not Found")
 
@@ -222,7 +223,8 @@ async def read_event(event_id: int, request: Request) -> do.Event:
                            category_id=event.category_id, intensity=event.intensity, create_time=event.create_time,
                            start_time=event.start_time, end_time=event.end_time, max_participant_count=event.max_participant_count,
                            creator_account_id=event.creator_account_id, description=event.description,
-                           participant_ids=participant_ids if participant_ids else [])
+                           participant_ids=event.participant_ids if event.participant_ids else [],
+                           bookmarked=event.bookmarked)
 
 
 @router.post("/event/{event_id}/join")
