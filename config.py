@@ -15,6 +15,7 @@ class DBConfig:
     username = env_values.get('PG_USERNAME')
     password = env_values.get('PG_PASSWORD')
     db_name = env_values.get('PG_DBNAME')
+    db_url = env_values.get('PG_DBURL')
 
 
 class AppConfig:

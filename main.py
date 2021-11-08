@@ -4,10 +4,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from databases import Database
 from datetime import datetime
 from config import db_config, app_config
+from orm import models
+from orm.database import engine
 
 from typing import Sequence
 
 from base import do
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=app_config.title,
@@ -48,7 +52,9 @@ async def default_page():
 
 
 from api import include_routers
+from orm import orm_include_routers
 include_routers(app)
+orm_include_routers(app)
 
 
 import middleware.auth
