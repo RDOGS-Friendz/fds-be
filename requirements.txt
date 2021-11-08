@@ -6,3 +6,5 @@ argon2-cffi  # required for passlib.hash.argon2
 pyjwt
 databases~=0.4.3
 python-dotenv~=0.18.0
+sqlalchemy
+psycopg2
