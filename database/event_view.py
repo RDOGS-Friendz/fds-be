@@ -230,8 +230,7 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"  FROM view_event"
-        fr" WHERE start_time >= NOW()"
-        fr"   AND id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
+        fr" WHERE id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
@@ -246,8 +245,7 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
     cnt_query = (
         fr"SELECT COUNT(*) FROM ("
         fr" SELECT * FROM view_event"
-        fr" WHERE start_time >= NOW()"
-        fr"   AND id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
+        fr" WHERE id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
