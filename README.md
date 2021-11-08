@@ -2,6 +2,11 @@
 
 A `python=3.9`-`asyncio`-based web backend, using web framework `fastapi`.
 
+## Note
+* We have deployed our backend website on https://be.rdogs.dodofk.xyz/docs. No need to start the server on your local environment.
+* API 討論文件: https://hackmd.io/@icheft/S1guJIOBY
+* Please ask develop team to get .env file. 
+
 ## Setup test server
 
 ### 0. `python` virtual environment
@@ -57,3 +62,7 @@ Now you can go to `http://127.0.0.1:8000` and test it.
 You may also turn up the auto-reload option, or change the host & port with `--host` and `--port`:
 ```shell
 uvicorn main:app --reload --host 0.0.0.0 --port 80
+```
+
+## Setup database
+* 匯入 schemas.sql 到 postgresql server
