@@ -19,3 +19,11 @@ async def read_all_categories():
         fr" FROM category"
     )
     return await database.fetch_all(query=query)
+
+async def search_categories(search: str):
+    query = (
+        fr"SELECT id, name"
+        fr" FROM category"
+        fr" WHERE name LIKE '%{search}%'"
+    )
+    return await database.fetch_all(query=query)

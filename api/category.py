@@ -21,9 +21,18 @@ async def read_category(category_id: int):
         return do.Category(id=result['id'], name=result['name'])
     raise HTTPException(status_code=404, detail="Not Found")
 
+@dataclass
+class BrowseCategoryOutput:
+    id: int
+    name: str
 
-@router.get("/category")
-async def browse_all_category():
+
+@router.get("/category", response_model=Sequence[BrowseCategoryOutput])
+async def browse_category(search: str = ''):
+    if search != '':
+        result = await db.category.search_categories(search=search)
+        results = [do.Category(id=item['id'], name=item['name']) for item in result]
+        return results
     result = await db.category.read_all_categories()
     results = [do.Category(id=item['id'], name=item['name']) for item in result]
-    return do.CategoryOutput(categories=results)
+    return results
