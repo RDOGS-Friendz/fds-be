@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from functools import partial
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 
 import jwt
 from passlib.hash import argon2
@@ -23,12 +24,12 @@ def encode_jwt(account_id: int, expire: timedelta) -> str:
 def decode_jwt(encoded: str, time: datetime) -> int:
     try:
         decoded = _jwt_decoder(encoded)
-    except jwt.DecodeError:  # FIXME: catch failed
-        raise HTTPException(status_code=400, detail="Login Failed")
+    except jwt.DecodeError:
+        return JSONResponse(status_code=401, content={"detail": "Login Failed"})
 
     expire = datetime.fromisoformat(decoded['expire'])
     if time >= expire:
-        raise HTTPException(status_code=400, detail="Login Expired")
+        return JSONResponse(status_code=401, content={"detail": "Login Expired"})
     return decoded['account-id']
 
 
