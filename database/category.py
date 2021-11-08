@@ -24,6 +24,6 @@ async def search_categories(search: str):
     query = (
         fr"SELECT id, name"
         fr" FROM category"
-        fr" WHERE name LIKE '%{search}%'"
+        fr" WHERE Lower(name) LIKE '%{search}%'"
     )
     return await database.fetch_all(query=query)

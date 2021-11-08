@@ -30,7 +30,7 @@ class BrowseCategoryOutput:
 @router.get("/category", response_model=Sequence[BrowseCategoryOutput])
 async def browse_category(search: str = ''):
     if search != '':
-        result = await db.category.search_categories(search=search)
+        result = await db.category.search_categories(search=search.lower())
         results = [do.Category(id=item['id'], name=item['name']) for item in result]
         return results
     result = await db.category.read_all_categories()
