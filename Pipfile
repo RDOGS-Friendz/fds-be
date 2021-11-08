@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = ">=0.65.2"
+uvicorn = "*"
+asyncpg = "*"
+passlib = "*"
+argon2-cffi = "*"
+databases = "~=0.4.3"
+python-dotenv = "~=0.18.0"
+PyJWT = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
