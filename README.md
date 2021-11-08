@@ -10,6 +10,11 @@ A `python=3.9`-`asyncio`-based web backend, using web framework `fastapi`.
 conda create --name fds-async python=3.9
 conda activate fds-async
 ```
+or
+```
+python3 -m venv fds-async
+./fds-async/Scripts/activate
+```
 
 or create a virtual environment using `pipenv` (faster and lighter)
 
