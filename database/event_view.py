@@ -17,9 +17,10 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
         if field_name not in customized_fields:
             filter_list.append(fr"{field_name} = '{value}'")
 
-    if 'start_date' in filter and 'end_date' in filter:
-        filter_list.append(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
-
+    if 'start_date' in filter:
+        filter_list.append(fr" start_time >= '{filter['start_date']}' ")
+    if 'end_date' in filter:
+        filter_list.append(fr" start_time <= '{filter['end_date']}' ")
     if 'title' in filter:
         filter_list.append(fr" title LIKE '%{filter['title']}%' ")
 
@@ -31,9 +32,8 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
         fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
-        fr" FROM view_event"
-        fr" WHERE start_time >= NOW()"
-        fr"   AND (NOT is_private"
+        fr"  FROM view_event "
+        fr" WHERE (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
@@ -47,8 +47,7 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
     cnt_query = (
         fr"SELECT COUNT(*) FROM ("
         fr" SELECT * FROM view_event"
-        fr" WHERE start_time >= NOW()"
-        fr"   AND (NOT is_private"
+        fr"  WHERE (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
@@ -83,8 +82,10 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         if field_name not in customized_fields:
             filter_list.append(fr"{field_name} = '{value}'")
 
-    if 'start_date' in filter and 'end_date' in filter:
-        filter_list.append(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
+    if 'start_date' in filter:
+        filter_list.append(fr" start_time >= '{filter['start_date']}' ")
+    if 'end_date' in filter:
+        filter_list.append(fr" start_time <= '{filter['end_date']}' ")
 
     filter_sql = ''
     if filter_list:
@@ -150,8 +151,10 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
         if field_name not in customized_fields:
             filter_list.append(fr"{field_name} = '{value}'")
 
-    if 'start_date' in filter and 'end_date' in filter:
-        filter_list.append(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
+    if 'start_date' in filter:
+        filter_list.append(fr" start_time >= '{filter['start_date']}' ")
+    if 'end_date' in filter:
+        filter_list.append(fr" start_time <= '{filter['end_date']}' ")
     if 'time_interval' not in filter:
         filter['time_interval'] = const.DEFAULT_TIME_INTERVAL
     filter_list.append(fr" start_time - NOW() <= interval '{filter['time_interval']}'")
@@ -218,8 +221,10 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
         if field_name not in customized_fields:
             filter_list.append(fr"{field_name} = '{value}'")
 
-    if 'start_date' in filter and 'end_date' in filter:
-        filter_list.append(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
+    if 'start_date' in filter:
+        filter_list.append(fr" start_time >= '{filter['start_date']}' ")
+    if 'end_date' in filter:
+        filter_list.append(fr" start_time <= '{filter['end_date']}' ")
 
     filter_sql = ''
     if filter_list:
@@ -281,8 +286,10 @@ async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, of
         if field_name not in customized_fields:
             filter_list.append(fr"{field_name} = '{value}'")
 
-    if 'start_date' in filter and 'end_date' in filter:
-        filter_list.append(fr" start_date BETWEEN DATE '{filter['start_date']}' and DATE '{filter['end_date']}' ")
+    if 'start_date' in filter:
+        filter_list.append(fr" start_time >= '{filter['start_date']}' ")
+    if 'end_date' in filter:
+        filter_list.append(fr" start_time <= '{filter['end_date']}' ")
 
     filter_sql = ''
     if filter_list:
