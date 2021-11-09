@@ -23,16 +23,28 @@ from . import types
 #         orm_mode = True
 
 
-class Account(BaseModel):
+class AccountBase(BaseModel):
     id: int
-    # participant_events: List[Event] = []
 
     class Config:
         orm_mode = True
 
 
-class Event(BaseModel):
+class EventBase(BaseModel):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+class Account(AccountBase):
+    participant_events: List[EventBase] = []
+
+    class Config:
+        orm_mode = True
+
+
+class Event(EventBase):
     title: str
     is_private: bool
     location_id: int
@@ -44,7 +56,15 @@ class Event(BaseModel):
     max_participant_count: int
     creator_account_id: int
     description: Optional[str]
-    # participant_accounts: List[Account] = []
+    participant_accounts: List[AccountBase] = []
+
+    class Config:
+        orm_mode = True
+
+
+class Account_Event_with_Count(BaseModel):
+    data: List[Event] = []
+    total_event_count: int
 
     class Config:
         orm_mode = True
