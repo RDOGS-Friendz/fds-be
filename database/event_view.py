@@ -28,7 +28,6 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
         filter_sql = ' AND '.join(filter_list)
 
     query = (
-        fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"  FROM view_event "
@@ -36,22 +35,19 @@ async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: i
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
-        fr" ) AS __TABLE__ "
-        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{  f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
     results = await database.fetch_all(query=query)
 
     cnt_query = (
-        fr"SELECT COUNT(*) FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT COUNT(*) FROM view_event"
         fr"  WHERE (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
-        fr" ) AS __TABLE__ "
-        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{  f' AND {filter_sql}' if filter_sql else ''}"
     )
     total_count = await database.fetch_one(query=cnt_query)
 
@@ -91,7 +87,6 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         filter_sql = ' AND '.join(filter_list)
 
     query = (
-        fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"  FROM view_event"
@@ -102,16 +97,14 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         fr"       )"
         fr"   AND category_id IN ( SELECT category_id FROM account_category WHERE account_id =  {viewer_id})"  # interested categories
         fr"   AND (id NOT IN (SELECT event_id FROM event_participant WHERE account_id =  {viewer_id}))"  # not joined
-        fr") AS __TABLE__ "
-        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{  f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
     results = await database.fetch_all(query=query)
 
     cnt_query = (
-        fr"SELECT COUNT(*) FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT COUNT(*) FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
@@ -119,8 +112,7 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         fr"       )"
         fr"   AND category_id IN ( SELECT category_id FROM account_category WHERE account_id = {viewer_id})"  # interested categories
         fr"   AND (id NOT IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"  # not joined
-        fr") AS __TABLE__ "
-        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{  f' AND {filter_sql}' if filter_sql else ''}"
     )
     total_count = await database.fetch_one(query=cnt_query)
 
@@ -160,26 +152,22 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
         filter_sql = ' AND '.join(filter_list)
 
     query = (
-        fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"  FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"  # joined
-        fr") AS __TABLE__ "
-        fr"{  f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{  f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
     results = await database.fetch_all(query=query)
 
     cnt_query = (
-        fr"SELECT COUNT(*) FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT COUNT(*) FROM view_event"
         fr" WHERE start_time >= NOW()"
         fr"   AND (id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"  # joined
-        fr") AS __TABLE__ "
-        fr"{f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{f' AND {filter_sql}' if filter_sql else ''}"
     )
     total_count = await database.fetch_one(query=cnt_query)
 
@@ -219,7 +207,6 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
         filter_sql = ' AND '.join(filter_list)
 
     query = (
-        fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"  FROM view_event"
@@ -228,23 +215,20 @@ async def view_joined_by_friend(viewer_id: int, filter: Dict[str, str], limit: i
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"   )"
-        fr") AS __TABLE__ "
-        fr"{ f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{ f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
     results = await database.fetch_all(query=query)
 
     cnt_query = (
-        fr"SELECT COUNT(*) FROM ("
-        fr" SELECT * FROM view_event"
+        fr" SELECT COUNT(*) FROM view_event"
         fr" WHERE id = ANY(event_joined_by_friend({viewer_id}))"  # joined by friend (not include self)
         fr"   AND (NOT is_private"
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"   )"
-        fr") AS __TABLE__ "
-        fr"{f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{f' AND {filter_sql}' if filter_sql else ''}"
     )
     total_count = await database.fetch_one(query=cnt_query)
 
@@ -284,7 +268,6 @@ async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, of
         filter_sql = ' AND '.join(filter_list)
 
     query = (
-        fr"SELECT * FROM ("
         fr" SELECT *, "
         fr"        id in (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id}) as is_bookmarked"  # return bookmarked or not
         fr"   FROM view_event"
@@ -293,23 +276,20 @@ async def view_bookmarked(viewer_id: int, filter: Dict[str, str], limit: int, of
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
-        fr") AS __TABLE__ "
-        fr"{ f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{ f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
     )
     results = await database.fetch_all(query=query)
 
     cnt_query = (
-        fr"SELECT COUNT(*) FROM ("
-        fr" SELECT * FROM view_event "
+        fr" SELECT COUNT(*) FROM view_event "
         fr"  WHERE id IN (SELECT event_id FROM event_bookmark WHERE account_id = {viewer_id})"
         fr"    AND (NOT is_private "
         fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
         fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
         fr"       )"
-        fr") AS __TABLE__ "
-        fr"{f' WHERE {filter_sql}' if filter_sql else ''}"
+        fr"{f' AND {filter_sql}' if filter_sql else ''}"
     )
     total_count = await database.fetch_one(query=cnt_query)
 
