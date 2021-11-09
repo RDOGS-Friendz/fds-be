@@ -56,7 +56,7 @@ class Event(EventBase):
     max_participant_count: int
     creator_account_id: int
     description: Optional[str]
-    participant_accounts: List[AccountBase] = []
+    participant_accounts: List[int] = []
 
     class Config:
         orm_mode = True

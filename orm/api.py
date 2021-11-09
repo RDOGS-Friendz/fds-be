@@ -51,7 +51,7 @@ async def browse_event_by_account(
             end_time=event.end_time,
             max_participant_count=event.max_participant_count,
             creator_account_id=event.creator_account_id,
-            participant_accounts=event.participant_accounts,
+            participant_accounts=[participant.id for participant in event.participant_accounts],
         ) for event in events],
         total_event_count=total_count,
     )
