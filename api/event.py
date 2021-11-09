@@ -107,7 +107,6 @@ async def browse_event(request: Request, view: enum.EventViewType, search: Optio
     - start_date: datetime
     - end_date: datetime
     - creator_account_id: int
-    - time_interval **(upcoming event only)** : str (postgres time interval) (default: `1 week`)
     - title **(all only)** : str (support LIKE)
     """
     results = []

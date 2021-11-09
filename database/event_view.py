@@ -4,7 +4,6 @@ from datetime import datetime
 from main import database
 from base import do, enum
 from middleware.response import json_serial
-import const
 
 
 async def view_all(viewer_id: int, filter: Dict[str, str], limit: int, offset: int) \
@@ -155,9 +154,6 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
         filter_list.append(fr" start_time >= '{filter['start_date']}' ")
     if 'end_date' in filter:
         filter_list.append(fr" start_time <= '{filter['end_date']}' ")
-    if 'time_interval' not in filter:
-        filter['time_interval'] = const.DEFAULT_TIME_INTERVAL
-    filter_list.append(fr" start_time - NOW() <= interval '{filter['time_interval']}'")
 
     filter_sql = ''
     if filter_list:
