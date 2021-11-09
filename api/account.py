@@ -62,13 +62,15 @@ class AddAccountInput(BaseModel):
 @router.post("/account", response_model=do.AddOutput)
 async def add_account(data: AddAccountInput):
     try:
-        account_id = await db.account.add(username=data.username, pass_hash=security.hash_password(password=data.password),
-                                          real_name=data.real_name, email=data.email, gender=data.gender, is_superuser=data.is_superuser)
+        account_id = await db.account.add_account_profile(
+            username=data.username, pass_hash=security.hash_password(password=data.password), real_name=data.real_name,
+            email=data.email, gender=data.gender, is_superuser=data.is_superuser, tagline=data.tagline, department_id=data.department_id,
+            social_media_link=data.social_media_link, birthday=data.birthday, about=data.about)
     except asyncpg.exceptions.UniqueViolationError:
         raise HTTPException(status_code=400, detail="Username Exists")
+    except asyncpg.exceptions.ForeignKeyViolationError:
+        raise HTTPException(status_code=400, detail="Illegal Input")
 
-    await db.profile.add_under_account(account_id=account_id, tagline=data.tagline, department_id=data.department_id,
-                                       social_media_link=data.social_media_link, birthday=data.birthday, about=data.about)
     return do.AddOutput(id=account_id)
 
 

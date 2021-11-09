@@ -96,15 +96,20 @@ async def batch_read(account_ids: Sequence[int]) -> Sequence[do.Account]:
             for i in range(len(result))]
 
 
-async def add(username: str, pass_hash: str, real_name: str, email: str,
-              gender: enum.GenderType, is_superuser: Optional[bool] = False) -> int:
+async def add_account_profile(username: str, pass_hash: str, real_name: str, email: str, gender: enum.GenderType,
+                              tagline: str, is_superuser: Optional[bool] = False, department_id: Optional[int] = None,
+                              social_media_link: Optional[str] = None, birthday: Optional[str] = None, about: Optional[str] = None) -> int:
     query = (
-        fr"INSERT INTO account(username, pass_hash, real_name, email, gender, is_superuser) "
+        fr"WITH ins AS ( "
+        fr"     INSERT INTO account(username, pass_hash, real_name, email, gender, is_superuser) "
         fr"     VALUES ('{username}','{pass_hash}','{real_name}', '{email}', '{gender}', '{is_superuser}')"
-        fr"   RETURNING id "
+        fr"  RETURNING id AS user_id) "
+        fr"  INSERT INTO profile(account_id, tagline, department_id, social_media_link, birthday, about) "
+        fr"  SELECT user_id,'{tagline}','{department_id}', '{social_media_link}', '{birthday}', '{about}' FROM ins "
+        fr"RETURNING account_id"
     )
     result = await database.fetch_one(query=query)
-    return int(result["id"])
+    return int(result["account_id"])
 
 
 async def edit_privacy(account_id: int, is_real_name_private: bool = None):

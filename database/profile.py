@@ -9,21 +9,6 @@ from middleware.response import json_serial
 from . import department
 
 
-async def add_under_account(account_id: int,
-                            tagline: str,
-                            department_id: Optional[int] = None,
-                            social_media_link: Optional[str] = None,
-                            birthday: Optional[str] = None,
-                            about: Optional[str] = None) -> int:
-    query = (
-        fr"INSERT INTO profile(account_id, tagline, department_id, social_media_link, birthday, about) "
-        fr"     VALUES ('{account_id}','{tagline}','{department_id}', '{social_media_link}', '{birthday}', '{about}')"
-        fr"   RETURNING id "
-    )
-    result = await database.fetch_one(query=query)
-    return int(result["id"])
-
-
 async def read_under_account(account_id: int) -> do.Profile:
     query = (
         fr"SELECT id, account_id, is_birthday_private, tagline, department_id, social_media_link, birthday, about"
