@@ -177,10 +177,6 @@ async def view_upcoming(viewer_id: int, filter: Dict[str, str], limit: int, offs
         fr"SELECT COUNT(*) FROM ("
         fr" SELECT * FROM view_event"
         fr" WHERE start_time >= NOW()"
-        fr"   AND (NOT is_private"
-        fr"         OR (is_private AND (creator_account_id = ANY(get_account_friend({viewer_id}))"
-        fr"             OR id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id})))"
-        fr"       )"
         fr"   AND (id IN (SELECT event_id FROM event_participant WHERE account_id = {viewer_id}))"  # joined
         fr") AS __TABLE__ "
         fr"{f' WHERE {filter_sql}' if filter_sql else ''}"
