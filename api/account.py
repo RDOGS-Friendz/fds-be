@@ -53,9 +53,7 @@ class AddAccountInput(BaseModel):
 
     # profile
     tagline: Optional[str] = ''
-    department_id: Optional[int] = None
     social_media_link: Optional[str] = ''
-    birthday: Optional[datetime] = None
     about: Optional[str] = ''
 
 
@@ -64,8 +62,8 @@ async def add_account(data: AddAccountInput):
     try:
         account_id = await db.account.add_account_profile(
             username=data.username, pass_hash=security.hash_password(password=data.password), real_name=data.real_name,
-            email=data.email, gender=data.gender, is_superuser=data.is_superuser, tagline=data.tagline, department_id=data.department_id,
-            social_media_link=data.social_media_link, birthday=data.birthday, about=data.about)
+            email=data.email, gender=data.gender, is_superuser=data.is_superuser, tagline=data.tagline,
+            social_media_link=data.social_media_link, about=data.about)
     except asyncpg.exceptions.UniqueViolationError:
         raise HTTPException(status_code=400, detail="Username Exists")
     except asyncpg.exceptions.ForeignKeyViolationError:

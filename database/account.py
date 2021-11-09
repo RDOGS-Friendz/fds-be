@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence, Optional, Dict
 
 from fastapi import HTTPException
@@ -97,15 +98,15 @@ async def batch_read(account_ids: Sequence[int]) -> Sequence[do.Account]:
 
 
 async def add_account_profile(username: str, pass_hash: str, real_name: str, email: str, gender: enum.GenderType,
-                              tagline: str, is_superuser: Optional[bool] = False, department_id: Optional[int] = None,
-                              social_media_link: Optional[str] = None, birthday: Optional[str] = None, about: Optional[str] = None) -> int:
+                              tagline: str, is_superuser: Optional[bool] = False, social_media_link: Optional[str] = '',
+                              about: Optional[str] = '') -> int:
     query = (
         fr"WITH ins AS ( "
         fr"     INSERT INTO account(username, pass_hash, real_name, email, gender, is_superuser) "
         fr"     VALUES ('{username}','{pass_hash}','{real_name}', '{email}', '{gender}', '{is_superuser}')"
         fr"  RETURNING id AS user_id) "
-        fr"  INSERT INTO profile(account_id, tagline, department_id, social_media_link, birthday, about) "
-        fr"  SELECT user_id,'{tagline}','{department_id}', '{social_media_link}', '{birthday}', '{about}' FROM ins "
+        fr"  INSERT INTO profile(account_id, tagline, social_media_link, about) "
+        fr"  SELECT user_id, '{tagline}', '{social_media_link}', '{about}' FROM ins "
         fr"RETURNING account_id"
     )
     result = await database.fetch_one(query=query)
