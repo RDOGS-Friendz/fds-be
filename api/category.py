@@ -15,6 +15,21 @@ router = APIRouter(
     tags=['Category'],
 )
 
+@dataclass
+class BatchCategoryOutput:
+    id: int
+    name: str
+
+@router.get("/category/batch", response_model=Sequence[BatchCategoryOutput])
+async def batch_get_category(category_ids: pydantic.Json, request: Request):
+    category_ids = pydantic.parse_obj_as(list[int], category_ids)
+    if not category_ids:
+        return []
+    result = await db.category.batch_read(category_ids=category_ids)
+    return [BrowseCategoryOutput(id=category.id,
+                                name=category.name)
+                        for category in result]
+
 @router.get("/category/{category_id}", response_model=do.Category)
 async def read_category(category_id: int):
     result = await db.category.read_category(category_id=category_id)
@@ -37,18 +52,3 @@ async def browse_category(search: str = ''):
     result = await db.category.read_all_categories()
     results = [do.Category(id=item['id'], name=item['name']) for item in result]
     return results
-
-@dataclass
-class BatchCategoryOutput:
-    id: int
-    name: str
-
-@router.get("/category/batch", response_model=Sequence[BatchCategoryOutput])
-async def batch_get_category(category_ids: pydantic.Json, request: Request):
-    category_ids = pydantic.parse_obj_as(list[int], category_ids)
-    if not category_ids:
-        return []
-    result = await db.category.batch_read(category_ids=category_ids)
-    return [BrowseCategoryOutput(id=category.id,
-                                name=category.name)
-                        for category in result]
