@@ -1,5 +1,6 @@
 from typing import Sequence, Optional
 from datetime import datetime
+import pydantic
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import HTMLResponse
@@ -62,3 +63,25 @@ async def browse_location(search: str = ''):
     result = await db.location.read_all_locations()
     results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
     return results
+
+
+@dataclass
+class BatchLocationOutput:
+    id: int
+    name: str
+    type: enum.LocationType
+    lat: Optional[float]
+    lng: Optional[float]
+
+@router.get("/location/batch", response_model=Sequence[BatchLocationOutput])
+async def batch_get_location(location_ids: pydantic.Json, request: Request):
+    location_ids = pydantic.parse_obj_as(list[int], location_ids)
+    if not location_ids:
+        return []
+    result = await db.location.batch_read(location_ids=location_ids)
+    return [BrowseLocationOutput(id=location.id,
+                                name=location.name,
+                                type=location.type,
+                                lat=location.lat,
+                                lng=location.lng)
+                        for location in result]

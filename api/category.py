@@ -1,5 +1,6 @@
 from typing import Sequence, Optional
 from datetime import datetime
+import pydantic
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import HTMLResponse
@@ -36,3 +37,18 @@ async def browse_category(search: str = ''):
     result = await db.category.read_all_categories()
     results = [do.Category(id=item['id'], name=item['name']) for item in result]
     return results
+
+@dataclass
+class BatchCategoryOutput:
+    id: int
+    name: str
+
+@router.get("/category/batch", response_model=Sequence[BatchCategoryOutput])
+async def batch_get_category(category_ids: pydantic.Json, request: Request):
+    category_ids = pydantic.parse_obj_as(list[int], category_ids)
+    if not category_ids:
+        return []
+    result = await db.category.batch_read(category_ids=category_ids)
+    return [BrowseCategoryOutput(id=category.id,
+                                name=category.name)
+                        for category in result]
