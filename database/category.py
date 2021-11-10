@@ -37,6 +37,6 @@ async def batch_read(category_ids: Sequence[int]) -> Sequence[do.Category]:
         fr" WHERE id IN ({cond_sql})"
     )
     result = await database.fetch_all(query=query)
-    return [do.Location(id=result[i]["id"],
+    return [do.Category(id=result[i]["id"],
                        name=result[i]["name"])
             for i in range(len(result))]
