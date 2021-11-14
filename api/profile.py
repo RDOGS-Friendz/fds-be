@@ -22,12 +22,13 @@ router = APIRouter(
 class ReadProfileOutput:
     account_id: int
     real_name: str
-    tagline: str
-    department: str
-    social_media_acct: str
-    birthday: str
+
+    tagline: Optional[str]
+    department: Optional[str]
+    social_media_acct: Optional[str]
+    birthday: Optional[str]
     preferred_category_id: Sequence[int]
-    about: str
+    about: Optional[str]
 
 
 @router.get("/account/{account_id}/profile", response_model=ReadProfileOutput)

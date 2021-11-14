@@ -37,6 +37,29 @@ async def add_location(data: AddLocationInput, request: Request) -> do.AddOutput
     location_id = await db.location.add_location(name=data.name, type=data.type, lat=data.lat, lng=data.lng)
     return do.AddOutput(id=location_id)
 
+
+@dataclass
+class BatchLocationOutput:
+    id: int
+    name: str
+    type: enum.LocationType
+    lat: Optional[float]
+    lng: Optional[float]
+
+@router.get("/location/batch", response_model=Sequence[BatchLocationOutput])
+async def batch_get_location(location_ids: pydantic.Json, request: Request):
+    location_ids = pydantic.parse_obj_as(list[int], location_ids)
+    if not location_ids:
+        return []
+    result = await db.location.batch_read(location_ids=location_ids)
+    return [BrowseLocationOutput(id=location.id,
+                                name=location.name,
+                                type=location.type,
+                                lat=location.lat,
+                                lng=location.lng)
+                        for location in result]
+
+
 @router.get("/location/{location_id}", response_model=do.Location)
 async def read_location(location_id: int) -> do.Location:
     result = await db.location.read_location(location_id=location_id)
@@ -65,23 +88,3 @@ async def browse_location(search: str = ''):
     return results
 
 
-@dataclass
-class BatchLocationOutput:
-    id: int
-    name: str
-    type: enum.LocationType
-    lat: Optional[float]
-    lng: Optional[float]
-
-@router.get("/location/batch", response_model=Sequence[BatchLocationOutput])
-async def batch_get_location(location_ids: pydantic.Json, request: Request):
-    location_ids = pydantic.parse_obj_as(list[int], location_ids)
-    if not location_ids:
-        return []
-    result = await db.location.batch_read(location_ids=location_ids)
-    return [BrowseLocationOutput(id=location.id,
-                                name=location.name,
-                                type=location.type,
-                                lat=location.lat,
-                                lng=location.lng)
-                        for location in result]
