@@ -31,7 +31,6 @@ async def batch_get_category(category_ids: pydantic.Json, request: Request):
                                 name=category.name)
                         for category in result]
 
-
 @router.get("/category/{category_id}", response_model=do.Category)
 async def read_category(category_id: int):
     result = await db.category.read_category(category_id=category_id)

@@ -26,18 +26,6 @@ class AddLocationInput(BaseModel):
 class SearchLocationInput(BaseModel):
     search: Optional[str] = None
 
-
-@dataclass
-class AddLocationOutput:
-    id: int
-
-
-@router.post("/location", response_model=AddLocationOutput)
-async def add_location(data: AddLocationInput, request: Request) -> do.AddOutput:
-    location_id = await db.location.add_location(name=data.name, type=data.type, lat=data.lat, lng=data.lng)
-    return do.AddOutput(id=location_id)
-
-
 @dataclass
 class BatchLocationOutput:
     id: int
@@ -58,6 +46,16 @@ async def batch_get_location(location_ids: pydantic.Json, request: Request):
                                 lat=location.lat,
                                 lng=location.lng)
                         for location in result]
+
+@dataclass
+class AddLocationOutput:
+    id: int
+
+
+@router.post("/location", response_model=AddLocationOutput)
+async def add_location(data: AddLocationInput, request: Request) -> do.AddOutput:
+    location_id = await db.location.add_location(name=data.name, type=data.type, lat=data.lat, lng=data.lng)
+    return do.AddOutput(id=location_id)
 
 
 @router.get("/location/{location_id}", response_model=do.Location)
@@ -86,5 +84,4 @@ async def browse_location(search: str = ''):
     result = await db.location.read_all_locations()
     results = [do.Location(id=item['id'], name=item['name'], type=item['type'], lat=item['lat'], lng=item['lng']) for item in result]
     return results
-
 
