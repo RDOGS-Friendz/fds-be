@@ -50,11 +50,11 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     account_categories = await db.account_category.browse_account_categories(account_id=account_id)
     department = await db.department.read(department_id=profile.department_id)
     return ReadProfileOutput(account_id=profile.account_id,
-                             real_name=account.real_name if is_self else None,
+                             real_name=account.real_name, # if is_self else None,
                              tagline=profile.tagline,
                              department=department.department_name,
                              social_media_acct=profile.social_media_link,
-                             birthday=profile.birthday if is_self else None,
+                             birthday=profile.birthday, # if is_self else None,
                              preferred_category_id=[result.category_id for result in account_categories],
                              about=profile.about)
 
