@@ -21,13 +21,14 @@ router = APIRouter(
 @dataclass
 class ReadProfileOutput:
     account_id: int
-    real_name: str
+    real_name: Optional[str]
 
+    # profile
     tagline: Optional[str]
     department: Optional[str]
     social_media_acct: Optional[str]
     birthday: Optional[str]
-    preferred_category_id: Sequence[int]
+    preferred_category_id: Optional[Sequence[int]]
     about: Optional[str]
 
 
