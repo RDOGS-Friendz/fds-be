@@ -39,10 +39,6 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     - ALL
     - Self (private info)
     """
-    try:
-        view_account = await db.account.read(account_id=request.state.id)
-    except:
-        raise HTTPException(status_code=400, detail="No Permission")
 
     is_self = request.state.id is account_id
 
