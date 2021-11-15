@@ -58,7 +58,7 @@ async def read(account_id: int) -> do.Account:
 async def read_by_username(username: str) -> do.Account:
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
-        fr"       is_real_name_private, is_superuser, is_deleted"
+        fr"       is_real_name_private, is_superuser, is_deleted, joined_date"
         fr"  FROM account" 
         fr" WHERE username = '{username}'"
         fr"   AND NOT is_deleted"
@@ -73,6 +73,7 @@ async def read_by_username(username: str) -> do.Account:
                       real_name=result[0]["real_name"],
                       email=result[0]["email"],
                       gender=enum.GenderType(result[0]["gender"]),
+                      joined_date=json_serial(result[0]["joined_date"]),
                       is_real_name_private=result[0]["is_real_name_private"],
                       is_superuser=result[0]["is_superuser"],
                       is_deleted=result[0]["is_deleted"])
