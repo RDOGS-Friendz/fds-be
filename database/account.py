@@ -83,7 +83,7 @@ async def batch_read(account_ids: Sequence[int]) -> Sequence[do.Account]:
     cond_sql = ', '.join(str(account_id) for account_id in account_ids)
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
-        fr"       is_real_name_private, is_superuser, is_deleted"
+        fr"       is_real_name_private, is_superuser, is_deleted, joined_date"
         fr"  FROM account"
         fr" WHERE id IN ({cond_sql})"
         fr"   AND NOT is_deleted"
