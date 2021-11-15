@@ -61,9 +61,15 @@ async def accept_friend_request(account_id: int, friend_id: int):
 
 async def decline_friend_request(account_id: int, friend_id: int):
     query = (
-        fr"UPDATE friendship"
-        fr"  SET status='DELETED'"
+        fr"DELETE FROM friendship"
         fr" WHERE requester_id={friend_id} AND addressee_id={account_id}"
     )
     return await database.fetch_one(query=query)
 
+async def delete_friend(account_id: int, friend_id: int):
+    query = (
+        fr"DELETE FROM friendship"
+        fr" WHERE (requester_id={friend_id} AND addressee_id={account_id})"
+        fr" OR (requester_id={account_id} AND addressee_id={friend_id})"
+    )
+    return await database.fetch_one(query=query)

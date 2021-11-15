@@ -78,8 +78,33 @@ async def edit_friend_request(account_id: int, data: PatchFriendInput, request: 
         raise HTTPException(status_code=400, detail="No Permission")
     # judge action is accept or decline
     if data.action == 'accept':
-        await db.friend.accept_friend_request(account_id=account_id, friend_id=data.friend_request_id)
+        try:    
+            await db.friend.accept_friend_request(account_id=account_id, friend_id=data.friend_request_id)
+            return SuccessResponse()
+        except:
+            raise HTTPException(status_code=400, detail="System Exception")
     elif data.action == 'decline':
-        await db.friend.decline_friend_request(account_id=account_id, friend_id=data.friend_request_id)
+        try:   
+            await db.friend.decline_friend_request(account_id=account_id, friend_id=data.friend_request_id)
+            return SuccessResponse()
+        except:
+            raise HTTPException(status_code=400, detail="System Exception")
     else:
+        raise HTTPException(status_code=400, detail="System Exception")
+
+class UnfriendInput(BaseModel):
+    friend_id: int
+
+@router.delete("/account/{account_id}")
+async def delete_friend(account_id: int, data: UnfriendInput, request: Request):
+    """
+    ### Auth
+    - Self
+    """
+    if request.state.id is not account_id:
+        raise HTTPException(status_code=400, detail="No Permission")
+    try:
+        await db.friend.delete_friend(account_id=account_id, friend_id=data.friend_id)
+        return SuccessResponse()
+    except:
         raise HTTPException(status_code=400, detail="System Exception")
