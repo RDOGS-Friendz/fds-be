@@ -23,7 +23,7 @@ class ReadProfileOutput:
     account_id: int
     real_name: Optional[str]
     gender: enum.GenderType
-    joined_date: datetime
+    joined_date: str
 
     # profile
     tagline: Optional[str]
