@@ -95,6 +95,7 @@ async def batch_read(account_ids: Sequence[int]) -> Sequence[do.Account]:
                        real_name=result[i]["real_name"],
                        email=result[i]["email"],
                        gender=enum.GenderType(result[i]["gender"]),
+                       joined_date=json_serial(result[i]["joined_date"]),
                        is_real_name_private=result[i]["is_real_name_private"],
                        is_superuser=result[i]["is_superuser"],
                        is_deleted=result[i]["is_deleted"])
