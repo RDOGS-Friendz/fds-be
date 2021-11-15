@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 import database as db
-from base import do
+from base import do, enum
 from middleware.dependencies import get_token_header
 from middleware.response import SuccessResponse
 
@@ -22,6 +22,7 @@ router = APIRouter(
 class ReadProfileOutput:
     account_id: int
     real_name: Optional[str]
+    gender: enum.GenderType
 
     # profile
     tagline: Optional[str]
@@ -48,6 +49,7 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     department = await db.department.read(department_id=profile.department_id)
     return ReadProfileOutput(account_id=profile.account_id,
                              real_name=account.real_name if (is_self or not account.is_real_name_private) else None,
+                             gender=account.gender,
                              tagline=profile.tagline,
                              department=department.department_name,
                              social_media_acct=profile.social_media_link,
