@@ -23,6 +23,7 @@ class ReadProfileOutput:
     account_id: int
     real_name: Optional[str]
     gender: enum.GenderType
+    joined_date: datetime
 
     # profile
     tagline: Optional[str]
@@ -50,6 +51,7 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     return ReadProfileOutput(account_id=profile.account_id,
                              real_name=account.real_name if (is_self or not account.is_real_name_private) else None,
                              gender=account.gender,
+                             joined_date=account.joined_date,
                              tagline=profile.tagline,
                              department=department.department_name,
                              social_media_acct=profile.social_media_link,

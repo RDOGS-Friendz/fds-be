@@ -5,13 +5,14 @@ from fastapi import HTTPException
 
 from main import database
 from base import do, enum
+from middleware.response import json_serial
 
 
 async def browse_by_search(to_search: str) -> Sequence[do.Account]:
     search_sql = fr"username LIKE '%{to_search}%' OR real_name LIKE '%{to_search}%'"
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
-        fr"       is_real_name_private, is_superuser, is_deleted"
+        fr"       is_real_name_private, is_superuser, is_deleted, joined_date"
         fr"  FROM account"
         fr" WHERE {search_sql}"
         fr"   AND NOT is_deleted"
@@ -23,6 +24,7 @@ async def browse_by_search(to_search: str) -> Sequence[do.Account]:
                        real_name=result[i]["real_name"],
                        email=result[i]["email"],
                        gender=enum.GenderType(result[i]["gender"]),
+                       joined_date=json_serial(result[i]["joined_date"]),
                        is_real_name_private=result[i]["is_real_name_private"],
                        is_superuser=result[i]["is_superuser"],
                        is_deleted=result[i]["is_deleted"])
@@ -32,7 +34,7 @@ async def browse_by_search(to_search: str) -> Sequence[do.Account]:
 async def read(account_id: int) -> do.Account:
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
-        fr"       is_real_name_private, is_superuser, is_deleted"
+        fr"       is_real_name_private, is_superuser, is_deleted, joined_date"
         fr"  FROM account" 
         fr" WHERE id = {account_id}"
         fr"   AND NOT is_deleted"
@@ -47,6 +49,7 @@ async def read(account_id: int) -> do.Account:
                       real_name=result[0]["real_name"],
                       email=result[0]["email"],
                       gender=enum.GenderType(result[0]["gender"]),
+                      joined_date=json_serial(result[0]["joined_date"]),
                       is_real_name_private=result[0]["is_real_name_private"],
                       is_superuser=result[0]["is_superuser"],
                       is_deleted=result[0]["is_deleted"])

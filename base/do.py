@@ -34,6 +34,7 @@ class Account:
     real_name: str
     email: str
     gender: enum.GenderType
+    joined_date: datetime
     is_real_name_private: bool
     is_superuser: bool
     is_deleted: bool
