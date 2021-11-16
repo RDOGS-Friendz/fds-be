@@ -17,7 +17,7 @@ async def get_account_friends(account_id: int) -> Sequence[Optional[int]]:
     for result in results:
         list1.append(result['addressee_id'])
         list1.append(result['requester_id'])
-    return list(filter((account_id).__ne__, list1))
+    return set(list(filter((account_id).__ne__, list1)))
 
 async def get_friend_requests(account_id: int) -> Sequence[Optional[int]]:
     query = (
