@@ -45,7 +45,8 @@ async def read_account_friend_requests(account_id: int, request: Request):
     if request.state.id is not account_id:
         raise HTTPException(status_code=400, detail="No Permission") 
     list = await db.friend.get_friend_requests(account_id=account_id)
-    return do.FriendRequestOutput(friend_request_id=list)
+    list2 = await db.friend.get_pending_friend_requests(account_id=account_id)
+    return do.FriendRequestOutput(friend_request_id=list, pending_friend_request_id=list2)
 
 
 @dataclass

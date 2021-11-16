@@ -24,6 +24,7 @@ class FriendOutput:
 @dataclass
 class FriendRequestOutput:
     friend_request_id: list
+    pending_friend_request_id: list
 
 
 @dataclass

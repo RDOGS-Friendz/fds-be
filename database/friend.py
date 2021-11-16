@@ -29,6 +29,16 @@ async def get_friend_requests(account_id: int) -> Sequence[Optional[int]]:
     results = [ result["requester_id"] for result in results]
     return list(filter((account_id).__ne__, results))
 
+async def get_pending_friend_requests(account_id: int) -> Sequence[Optional[int]]:
+    query = (
+        fr"SELECT addressee_id"
+        fr" FROM friendship"
+        fr" WHERE requester_id={account_id} AND status='PENDING'"
+    )
+    results = await database.fetch_all(query=query)
+    results = [ result["addressee_id"] for result in results]
+    return list(filter((account_id).__ne__, results))
+
 async def send_friend_request(account_id: int, friend_id: int) -> str:
     # check whether they have been friends or not
     query = (
