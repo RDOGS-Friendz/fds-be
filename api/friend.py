@@ -93,12 +93,15 @@ async def edit_friend_request(account_id: int, data: PatchFriendInput, request: 
     else:
         raise HTTPException(status_code=400, detail="System Exception")
 
-@router.delete("/account/friend/{friend_id}")
-async def delete_friend(friend_id: int, request: Request):
+@router.delete("/account/{account_id}/friend/{friend_id}")
+async def delete_friend(account_id: int, friend_id: int, request: Request):
     """
     ### Auth
     - Self
     """
+    if request.state.id is not account_id:
+        raise HTTPException(status_code=400, detail="No Permission")
+        
     try:
         await db.friend.delete_friend(account_id=request.state.id, friend_id=friend_id)
         return SuccessResponse()
