@@ -79,8 +79,8 @@ class BrowseAccountOutput:
     real_name: str
 
 
-@router.get("/account", response_model=BrowseAccountOutput)
-async def browse_account(request: Request, search: str = '') -> Sequence[do.Account]:
+@router.get("/account", response_model=Sequence[BrowseAccountOutput])
+async def browse_account(request: Request, search: str = ''):
 
     result = await db.account.browse_by_search(to_search=search)
     return [BrowseAccountOutput(account_id=account.id,
@@ -102,9 +102,9 @@ async def batch_get_account(account_ids: pydantic.Json, request: Request):
     if not account_ids:
         return []
     result = await db.account.batch_read(account_ids=account_ids)
-    return [BrowseAccountOutput(account_id=account.id,
-                                username=account.username,
-                                real_name=account.real_name)
+    return [BatchAccountOutput(account_id=account.id,
+                               username=account.username,
+                               real_name=account.real_name)
             for account in result]
 
 
