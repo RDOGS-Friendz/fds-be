@@ -95,7 +95,7 @@ async def edit_friend_request(account_id: int, data: PatchFriendInput, request: 
 class UnfriendInput(BaseModel):
     friend_id: int
 
-@router.delete("/account/{account_id}")
+@router.delete("/account/{account_id}/friend")
 async def delete_friend(account_id: int, data: UnfriendInput, request: Request):
     """
     ### Auth
