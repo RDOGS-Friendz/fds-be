@@ -30,7 +30,7 @@ async def browse_event_by_account(
 ):
     """
         ### Auth
-        Auth
+        Basic auth to get bookmark
     """
     events, total_count, account_bookmarks = crud.browse_event_by_account(
         db=db,
@@ -54,7 +54,7 @@ async def browse_event_by_account(
             max_participant_count=event.max_participant_count,
             creator_account_id=event.creator_account_id,
             participant_accounts=[participant.id for participant in event.participant_accounts],
-            bookmarked=True if event.id in account_bookmarks else False,
+            bookmarked=True if event.id in [event.id for event in account_bookmarks] else False,
         ) for event in events],
         total_count=total_count,
     )
