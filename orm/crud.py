@@ -8,7 +8,7 @@ def browse_event_by_account(db: Session, account_id: int, view: types.AccountEve
     if view == types.AccountEventViewType.all:
         queryset = db.query(models.Event).order_by(models.Event.start_time).filter(
             models.Event.participant_accounts.any(models.Account.id == account_id)
-        ).limit(limit).offset(limit*offset).all()
+        ).limit(limit).offset(offset).all()
         total_count = db.query(models.Event).order_by(models.Event.start_time).filter(
             models.Event.participant_accounts.any(models.Account.id == account_id)
         ).count()
@@ -16,7 +16,7 @@ def browse_event_by_account(db: Session, account_id: int, view: types.AccountEve
         queryset = db.query(models.Event).order_by(models.Event.start_time).filter(and_(
             models.Event.participant_accounts.any(models.Account.id == account_id),
             models.Event.start_time <= datetime.now()
-        )).limit(limit).offset(limit*offset).all()
+        )).limit(limit).offset(offset).all()
         total_count = db.query(models.Event).order_by(models.Event.start_time).filter(and_(
             models.Event.participant_accounts.any(models.Account.id == account_id),
             models.Event.start_time <= datetime.now()
@@ -25,7 +25,7 @@ def browse_event_by_account(db: Session, account_id: int, view: types.AccountEve
         queryset = db.query(models.Event).order_by(models.Event.start_time).filter(and_(
             models.Event.participant_accounts.any(models.Account.id == account_id),
             models.Event.start_time > datetime.now()
-        )).limit(limit).offset(limit * offset).all()
+        )).limit(limit).offset(offset).all()
         total_count = db.query(models.Event).order_by(models.Event.start_time).filter(and_(
             models.Event.participant_accounts.any(models.Account.id == account_id),
             models.Event.start_time > datetime.now()
