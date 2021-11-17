@@ -32,13 +32,18 @@ async def browse_event_by_account(
         ### Auth
         Basic auth to get bookmark
     """
+    try:
+        requester_id = request.state.id
+    except AttributeError:
+        raise HTTPException(status_code=401, detail="Authorization Failed")
+
     events, total_count, account_bookmarks = crud.browse_event_by_account(
         db=db,
         account_id=account_id,
         view=view,
         limit=limit,
         offset=offset,
-        requester_id=request.state.id,
+        requester_id=requester_id,
     )
     return schema.Account_Event_with_Count(
         data=[schema.Event(
