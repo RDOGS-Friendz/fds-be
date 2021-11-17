@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
-from . import crud, models, schema, types
-from .database import SessionLocal, engine
+from . import crud, schema, types
+from .database import SessionLocal
 from middleware.dependencies import get_token_header
-from typing import List
 
 router = APIRouter(
     tags=['Event'],
