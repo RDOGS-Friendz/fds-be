@@ -57,6 +57,7 @@ class Event(EventBase):
     creator_account_id: int
     description: Optional[str]
     participant_accounts: List[int] = []
+    bookmarked: bool
 
     class Config:
         orm_mode = True
@@ -64,7 +65,7 @@ class Event(EventBase):
 
 class Account_Event_with_Count(BaseModel):
     data: List[Event] = []
-    total_event_count: int
+    total_count: int
 
     class Config:
         orm_mode = True

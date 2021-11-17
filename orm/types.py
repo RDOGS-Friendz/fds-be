@@ -27,6 +27,6 @@ class Friendship_Type(enum.Enum):
 
 
 class AccountEventViewType(str, enum.Enum):
-    ALL = 'ALL'
-    HISTORY = 'HISTORY'
-    UPCOMING = 'UPCOMING'
+    all = 'all'
+    history = 'history'
+    upcoming = 'upcoming'

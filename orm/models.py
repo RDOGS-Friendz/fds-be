@@ -11,6 +11,13 @@ EventParticipantRelation = Table(
 )
 
 
+EventBookMarkRelation = Table(
+    "event_bookmark", Base.metadata,
+    Column('account_id', Integer, ForeignKey('account.id')),
+    Column('event_id', Integer, ForeignKey('event.id')),
+)
+
+
 class Account(Base):
     __tablename__ = "account"
 
@@ -24,6 +31,11 @@ class Account(Base):
         'Event',
         secondary=EventParticipantRelation,
         back_populates="participant_accounts",
+    )
+
+    bookmark_events = relationship(
+        'Event',
+        secondary=EventBookMarkRelation,
     )
 
     # created_events = relationship("Event", back_populates="created_account")
@@ -89,5 +101,3 @@ class Category(Base):
 #     __tablename__ = "event_participant"
 #     account_id = Column(Integer, ForeignKey("account.id"), primary_key=True)
 #     event_id = Column(Integer, ForeignKey("event.id"), primary_key=True)
-
-

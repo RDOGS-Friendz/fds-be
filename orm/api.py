@@ -22,21 +22,23 @@ def get_db():
 @router.get("/account/{account_id}/event", response_model=schema.Account_Event_with_Count)
 async def browse_event_by_account(
         account_id: int,
+        request: Request,
         db: Session = Depends(get_db),
-        view: types.AccountEventViewType = types.AccountEventViewType.ALL,
+        view: types.AccountEventViewType = types.AccountEventViewType.all,
         limit: int = 50,
         offset: int = 0,
 ):
     """
         ### Auth
-        No Auth
+        Auth
     """
-    events, total_count = crud.browse_event_by_account(
+    events, total_count, account_bookmarks = crud.browse_event_by_account(
         db=db,
         account_id=account_id,
         view=view,
         limit=limit,
-        offset=offset
+        offset=offset,
+        requester_id=request.state.id,
     )
     return schema.Account_Event_with_Count(
         data=[schema.Event(
@@ -52,6 +54,7 @@ async def browse_event_by_account(
             max_participant_count=event.max_participant_count,
             creator_account_id=event.creator_account_id,
             participant_accounts=[participant.id for participant in event.participant_accounts],
+            bookmarked=True if event.id in account_bookmarks else False,
         ) for event in events],
-        total_event_count=total_count,
+        total_count=total_count,
     )
