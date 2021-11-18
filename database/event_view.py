@@ -97,7 +97,7 @@ async def view_suggested(viewer_id: int, filter: Dict[str, str], limit: int, off
         fr"       )"
         fr"   AND category_id IN ( SELECT category_id FROM account_category WHERE account_id =  {viewer_id})"  # interested categories
         fr"   AND (id NOT IN (SELECT event_id FROM event_participant WHERE account_id =  {viewer_id}))"  # not joined
-        fr"   AND CARDINALITY(participant_id) < max_participant_count "  # not reached max_participant_count
+        fr"   AND CARDINALITY(participant_id) < max_participant_count OR CARDINALITY(participant_id) IS NULL"  # not reached max_participant_count
         fr"{  f' AND {filter_sql}' if filter_sql else ''}"
         fr" ORDER BY id DESC"
         fr" LIMIT {limit} OFFSET {offset}"
