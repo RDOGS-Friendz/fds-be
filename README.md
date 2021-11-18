@@ -15,8 +15,10 @@ There two ways to setup your database.
 First, import schemas.sql to postgresql server
 Second, on your postgresql cmd
 ```
-/COPY location(name) FROM '/path/fds-be/data_collection/location.csv' DELIMITER ',' CSV HEADER;
-/COPY category(name) FROM '/path/fds-be/data_collection/category.csv' DELIMITER ',' CSV HEADER;
+# please remember to replace your path
+\COPY location(name) FROM '/path/fds-be/data_collection/location.csv' DELIMITER ',' CSV HEADER;
+\COPY category(name) FROM '/path/fds-be/data_collection/category.csv' DELIMITER ',' CSV HEADER;
+\COPY department(school, department_name) FROM '/path/fds-be/data_collection/department.csv' DELIMITER ',' CSV HEADER;
 ```
 Finally, revise .env file to connect to your local database.
 
