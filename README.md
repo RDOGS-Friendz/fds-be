@@ -7,6 +7,19 @@ A `python=3.9`-`asyncio`-based web backend, using web framework `fastapi`.
 * API 討論文件: https://hackmd.io/@icheft/S1guJIOBY
 * Please ask develop team to get .env file. 
 
+## Setup database
+There two ways to setup your database.
+### 1. Connect to our database 
+* You only have to ask developer to get .env file.
+### 2. Build your own database on localhost
+First, import schemas.sql to postgresql server
+Second, on your postgresql cmd
+```
+/COPY location(name) FROM '/path/fds-be/data_collection/location.csv' DELIMITER ',' CSV HEADER;
+/COPY category(name) FROM '/path/fds-be/data_collection/category.csv' DELIMITER ',' CSV HEADER;
+```
+Finally, revise .env file to connect to your local database.
+
 ## Setup test server
 
 ### 0. `python` virtual environment
@@ -63,6 +76,3 @@ You may also turn up the auto-reload option, or change the host & port with `--h
 ```shell
 uvicorn main:app --reload --host 0.0.0.0 --port 80
 ```
-
-## Setup database
-* 匯入 schemas.sql 到 postgresql server
