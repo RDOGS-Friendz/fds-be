@@ -47,13 +47,13 @@ async def read_account_profile(account_id: int, request: Request) -> ReadProfile
     account = await db.account.read(account_id=account_id)
     profile = await db.profile.read_under_account(account_id=account_id)
     account_categories = await db.account_category.browse_account_categories(account_id=account_id)
-    department = await db.department.read(department_id=profile.department_id)
+    department = None if profile.department_id is None else await db.department.read(department_id=profile.department_id)
     return ReadProfileOutput(account_id=profile.account_id,
                              real_name=account.real_name if (is_self or not account.is_real_name_private) else None,
                              gender=account.gender,
                              joined_date=account.joined_date,
                              tagline=profile.tagline,
-                             department=department.department_name,
+                             department=None if department is None else department.department_name,
                              social_media_acct=profile.social_media_link,
                              birthday=profile.birthday if (is_self or not profile.is_birthday_private) else None,
                              preferred_category_id=[result.category_id for result in account_categories],
