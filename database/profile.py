@@ -37,8 +37,8 @@ async def edit_under_account(account_id: int, tagline: str = None, department_na
     if tagline is not None:
         to_updates['tagline'] = tagline
     if department_name is not None:
-        department_id = await department.read_by_name(department_name=department_name)
-        to_updates['department_id'] = department_id
+        department_get = await department.read_by_name(department_name=department_name)
+        to_updates['department_id'] = department_get.id
     if social_media_link is not None:
         to_updates['social_media_link'] = social_media_link
     if birthday is not None:
