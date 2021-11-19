@@ -23,6 +23,7 @@ database = Database(db_config.host, port=db_config.port, user=db_config.username
 
 origins = [
     "https://rdogs.dodofk.xyz",
+    "https://fds.icheft.tech",
     "http://localhost",
     "http://localhost:3000",
 ]
