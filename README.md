@@ -21,7 +21,14 @@ Second, on your postgresql cmd
 \COPY department(school, department_name) FROM '/path/fds-be/data_collection/department.csv' DELIMITER ',' CSV HEADER;
 ```
 Finally, revise .env file to connect to your local database.
-
+```
+PG_HOST=postgresql://localhost
+PG_PORT=5432
+PG_USERNAME=your_username
+PG_PASSWORD=your_password
+PG_DBNAME=your_dbname
+PG_DBURL= postgresql://your_username:your_password@localhost/your_dbname
+```
 ## Setup test server
 
 ### 0. `python` virtual environment
