@@ -63,9 +63,10 @@ async def edit_under_account(account_id: int, tagline: str = None, department_na
         await database.fetch_one(query=query)
 
         # Add
-        add_sql = '), ('.join(fr"{account_id}, {category_id}" for category_id in preferred_category_ids)
-        query = (fr'INSERT INTO account_category '
-                 fr'VALUES ({add_sql})')
+        if len(preferred_category_ids) != 0:
+            add_sql = '), ('.join(fr"{account_id}, {category_id}" for category_id in preferred_category_ids)
+            query = (fr'INSERT INTO account_category '
+                     fr'VALUES ({add_sql})')
         await database.fetch_one(query=query)
 
 
