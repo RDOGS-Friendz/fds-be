@@ -26,6 +26,7 @@ origins = [
     "https://fds.icheft.tech",
     "http://localhost",
     "http://localhost:3000",
+    "http://fds.icheft.tech",
 ]
 
 app.add_middleware(
