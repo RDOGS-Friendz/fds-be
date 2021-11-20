@@ -12,23 +12,35 @@ There two ways to setup your database.
 ### 1. Connect to our database 
 * You only have to ask developer to get .env file.
 ### 2. Build your own database on localhost
-First, import schemas.sql to postgresql server
-Second, on your postgresql cmd
-```
-# please remember to replace your path
-\COPY location(name) FROM '/path/fds-be/data_collection/location.csv' DELIMITER ',' CSV HEADER;
-\COPY category(name) FROM '/path/fds-be/data_collection/category.csv' DELIMITER ',' CSV HEADER;
-\COPY department(school, department_name) FROM '/path/fds-be/data_collection/department.csv' DELIMITER ',' CSV HEADER;
-```
-Finally, revise .env file to connect to your local database.
-```
-PG_HOST=postgresql://localhost
-PG_PORT=5432
-PG_USERNAME=your_username
-PG_PASSWORD=your_password
-PG_DBNAME=your_dbname
-PG_DBURL= postgresql://your_username:your_password@localhost/your_dbname
-```
+1. First, import [`schemas.sql`](schemas.sql) to postgresql server
+
+    ```
+    psql -U your_user_name -d new_db_name -f schemas.sql
+    ```
+2. Second, on your postgresql cmd: 
+
+    ```
+    # please remember to replace your path
+    \COPY location(name) FROM '/path/fds-be/data_collection/location.csv' DELIMITER ',' CSV HEADER;
+    \COPY category(name) FROM '/path/fds-be/data_collection/category.csv' DELIMITER ',' CSV HEADER;
+    \COPY department(school, department_name) FROM '/path/fds-be/data_collection/department.csv' DELIMITER ',' CSV HEADER;
+    ```
+
+    or in your postgresql cmd:
+
+    ```
+    \i import_data.sql
+    ```
+
+3. Finally, revise .env file to connect to your local database.
+    ```
+    PG_HOST=postgresql://localhost
+    PG_PORT=5432
+    PG_USERNAME=your_username
+    PG_PASSWORD=your_password
+    PG_DBNAME=your_dbname
+    PG_DBURL= postgresql://your_username:your_password@localhost/your_dbname
+    ```
 ## Setup test server
 
 ### 0. `python` virtual environment

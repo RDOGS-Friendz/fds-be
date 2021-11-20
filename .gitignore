@@ -2,5 +2,6 @@ venv
 .idea
 __pycache__
 .env
+secrets/
 fds-async/
 .DS_Store
