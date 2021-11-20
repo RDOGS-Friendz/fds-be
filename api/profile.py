@@ -1,3 +1,4 @@
+import asyncpg
 import pydantic
 from typing import Sequence, Optional
 from datetime import datetime
@@ -80,11 +81,15 @@ async def edit_account_profile(account_id: int, data: EditProfileInput, request:
 
     preferred_category_ids = pydantic.parse_obj_as(list[int], data.preferred_category_id)
 
-    await db.profile.edit_under_account(account_id=account_id,
-                                        tagline=data.tagline,
-                                        department_name=data.department,
-                                        social_media_link=data.social_media_acct,
-                                        birthday=data.birthday,
-                                        preferred_category_ids=preferred_category_ids,
-                                        about=data.about)
+    try:
+        await db.profile.edit_under_account(account_id=account_id,
+                                            tagline=data.tagline,
+                                            department_name=data.department,
+                                            social_media_link=data.social_media_acct,
+                                            birthday=data.birthday,
+                                            preferred_category_ids=preferred_category_ids,
+                                            about=data.about)
+    except asyncpg.exceptions.ForeignKeyViolationError:
+        raise HTTPException(status_code=400, detail="Illegal Input")
+
     return SuccessResponse()

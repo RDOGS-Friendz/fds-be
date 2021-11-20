@@ -9,14 +9,14 @@ from middleware.response import json_serial
 
 
 async def browse_by_search(to_search: str, account_id: int) -> Sequence[do.Account]:
-    search_sql = fr"username LIKE '%{to_search}%' OR real_name LIKE '%{to_search}%'"
+    search_sql = fr"t.username LIKE '%{to_search}%' OR t.real_name LIKE '%{to_search}%'"
     query = (
-        fr"SELECT id, username, pass_hash, real_name, email, gender,"
+        fr"SELECT * FROM (SELECT id, username, pass_hash, real_name, email, gender,"
         fr"       is_real_name_private, is_superuser, is_deleted, joined_date"
         fr"  FROM account"
+        fr" WHERE id != {account_id}) AS t"
         fr" WHERE {search_sql}"
-        fr"   AND NOT is_deleted"
-        fr"   AND id != {account_id}"
+        fr"   AND NOT t.is_deleted"
     )
     result = await database.fetch_all(query=query)
     return [do.Account(id=result[i]["id"],
