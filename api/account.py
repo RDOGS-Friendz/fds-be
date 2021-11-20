@@ -81,7 +81,7 @@ class BrowseAccountOutput:
 
 @router.get("/account", response_model=Sequence[BrowseAccountOutput])
 async def browse_account(request: Request, search: str = '') -> Sequence[BrowseAccountOutput]:
-    result = await db.account.browse_by_search(to_search=search)
+    result = await db.account.browse_by_search(to_search=search, account_id=request.state.id)
     return [BrowseAccountOutput(account_id=account.id,
                                 username=account.username,
                                 real_name=account.real_name)

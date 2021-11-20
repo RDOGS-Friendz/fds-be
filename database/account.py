@@ -8,7 +8,7 @@ from base import do, enum
 from middleware.response import json_serial
 
 
-async def browse_by_search(to_search: str) -> Sequence[do.Account]:
+async def browse_by_search(to_search: str, account_id: int) -> Sequence[do.Account]:
     search_sql = fr"username LIKE '%{to_search}%' OR real_name LIKE '%{to_search}%'"
     query = (
         fr"SELECT id, username, pass_hash, real_name, email, gender,"
@@ -16,6 +16,7 @@ async def browse_by_search(to_search: str) -> Sequence[do.Account]:
         fr"  FROM account"
         fr" WHERE {search_sql}"
         fr"   AND NOT is_deleted"
+        fr"   AND id != {account_id}"
     )
     result = await database.fetch_all(query=query)
     return [do.Account(id=result[i]["id"],
