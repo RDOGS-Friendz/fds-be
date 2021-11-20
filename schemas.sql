@@ -190,7 +190,7 @@ AS $function$
 
 -- VIEW FOR EVENT
 
-CREATE OR REPLACE VIEW view_event
+CREATE OR REPLACE VIEW public.view_event
 AS SELECT t.id,
     t.title,
     t.is_private,
@@ -207,8 +207,7 @@ AS SELECT t.id,
     t.day_time,
     t.participant_id,
     t.start_date
-   FROM ( SELECT
-            event.id,
+   FROM ( SELECT event.id,
             event.title,
             event.is_private,
             event.location_id,
@@ -220,17 +219,17 @@ AS SELECT t.id,
             event.max_participant_count,
             event.creator_account_id,
             event.description,
-            CASE
-                WHEN (event.end_time - event.start_time) < '00:30:00'::interval THEN 'SHORT'::text
-                WHEN (event.end_time - event.start_time) >= '00:30:00'::interval AND (event.end_time - event.start_time) < '01:30:00'::interval THEN 'MEDIUM'::text
-                ELSE 'LONG'::text
-            END AS duration,
-            CASE
-                WHEN date_part('hour'::text, event.start_time) >= 5::double precision AND date_part('hour'::text, event.start_time) <= 12::double precision THEN 'MORNING'::text
-                WHEN date_part('hour'::text, event.start_time) >= 12::double precision AND date_part('hour'::text, event.start_time) <= 18::double precision THEN 'AFTERNOON'::text
-                WHEN date_part('hour'::text, event.start_time) >= 18::double precision AND date_part('hour'::text, event.start_time) <= 23::double precision THEN 'EVENING'::text
-                ELSE 'NIGHT'::text
-            END AS day_time,
+                CASE
+                    WHEN (event.end_time - event.start_time) < '00:30:00'::interval THEN 'SHORT'::text
+                    WHEN (event.end_time - event.start_time) >= '00:30:00'::interval AND (event.end_time - event.start_time) < '01:30:00'::interval THEN 'MEDIUM'::text
+                    ELSE 'LONG'::text
+                END AS duration,
+                CASE
+                    WHEN date_part('hour', event.start_time + interval '8 hours') >= 5 AND date_part('hour', event.start_time + interval '8 hours') < 12 THEN 'MORNING'
+                    WHEN date_part('hour', event.start_time + interval '8 hours') >= 12 AND date_part('hour', event.start_time + interval '8 hours') < 18 THEN 'AFTERNOON'
+                    WHEN date_part('hour', event.start_time + interval '8 hours') >= 18 AND date_part('hour', event.start_time + interval '8 hours') < 23 THEN 'EVENING'
+                    ELSE 'NIGHT'
+                END AS day_time,
             ( SELECT DISTINCT array_agg(ep.account_id) AS array_agg
                    FROM event e
                      LEFT JOIN event_participant ep ON ep.event_id = e.id
